@@ -1,0 +1,15 @@
+{
+  "name": "dischord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/interpreter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^22.10.6"
+  }
+}
