@@ -12,7 +12,9 @@ type ASTNode = {
 export class Parser {
     private current = 0;
 
-    constructor(private tokens: Token[]) {}
+    constructor(private tokens: Token[]) {
+        console.log(tokens)
+    }
 
     public parse(): ASTNode {
         switch(this.peek().type) {

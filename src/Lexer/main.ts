@@ -23,6 +23,29 @@ export class Lexer {
                 continue;
             }
 
+            if (char === "/") {
+                char = this.input[++current]; // Avanza al siguiente carácter
+                if (char === "/") {
+                    while (char !== "\n" && current < this.input.length) {
+                        char = this.input[++current];
+                    }
+                    continue;
+                } else if (char === "*") {
+                    char = this.input[++current];
+                    while (current < this.input.length) {
+                        if (char === "*" && this.input[current + 1] === "/") {
+                            current += 2;
+                            break;
+                        }
+                        char = this.input[++current];
+                    }
+                    continue;
+                }
+                
+                // Si no es un comentario válido, puede ser un error
+                throw new Error(`Token inesperado: ${char}`);
+            }
+
             if (char === '"') { // Strings
                 let value = "";
                 char = this.input[++current];
@@ -49,7 +72,7 @@ export class Lexer {
                 continue;
             }
 
-            if (this.symbols[char]) { // Symbols
+            if (this.symbols[char]) { // Símbolos
                 tokens.push({ type: this.symbols[char], value: char });
                 current++;
                 continue;
