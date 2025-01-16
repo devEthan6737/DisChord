@@ -41,8 +41,7 @@ export class Lexer {
                     }
                     continue;
                 }
-                
-                // Si no es un comentario válido, puede ser un error
+
                 throw new Error(`Token inesperado: ${char}`);
             }
 
@@ -58,14 +57,39 @@ export class Lexer {
                 continue;
             }
 
-            if (/[a-zA-Z]/.test(char)) { // Keywords e identificadores
+            if (char === "[") { // Arrays
+                let value = "[";
+                char = this.input[++current];
+                while (char !== "]" && current < this.input.length) {
+                    value += char;
+                    char = this.input[++current];
+                }
+                value += ']';
+                current++;
+                tokens.push({ type: "ARRAY", value });
+                continue;
+            }
+
+            if (/[0-9]/.test(char)) { // Números
+                let value = "";
+                while (/[0-9.]/.test(char) && current < this.input.length) {
+                    value += char;
+                    char = this.input[++current];
+                }
+                tokens.push({ type: "NUMBER", value });
+                continue;
+            }
+
+            if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined
                 let value = "";
                 while (/[a-zA-Z]/.test(char) && current < this.input.length) {
                     value += char;
                     char = this.input[++current];
                 }
                 if (this.keywords.includes(value)) {
-                    tokens.push({ type: value, value });
+                    tokens.push({ type: value.toUpperCase(), value });
+                } else if (["true", "false", "undefined"].includes(value)) {
+                    tokens.push({ type: "LITERAL", value });
                 } else {
                     tokens.push({ type: "IDENTIFIER", value });
                 }

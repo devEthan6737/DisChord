@@ -1,6 +1,5 @@
 export = [
     "BOT",
-    "TOKEN",
     "COMANDO",
     "RESPONDER",
     "SI",
