@@ -3,10 +3,10 @@ import { parseBlock } from "../Utils/Blocks";
 import { consume } from "../Utils/Consume";
 import { match } from "../Utils/Match";
 
-export function parseCondition(tokens: Token[], current: number): ASTNode {
-    consume(tokens, current,  "SI");
-    const condition = consume(tokens, current, "IDENTIFIER");
-    const body = parseBlock(tokens, current);
+export function parseCondition(tokens: Token[]): ASTNode {
+    consume(tokens,  "SI");
+    const condition = consume(tokens, "IDENTIFIER");
+    const body = parseBlock(tokens);
 
     const node: ASTNode = {
         type: "Condition",
@@ -14,11 +14,11 @@ export function parseCondition(tokens: Token[], current: number): ASTNode {
         children: body,
     };
 
-    if (match(tokens, current, "SINO")) {
-        consume(tokens, current, "SINO");
+    if (match(tokens, "SINO")) {
+        consume(tokens, "SINO");
         node.children!.push({
             type: "Else",
-            children: parseBlock(tokens, current),
+            children: parseBlock(tokens),
         });
     }
 
