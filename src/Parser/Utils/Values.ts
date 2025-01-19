@@ -4,11 +4,6 @@ export function processValue(token: Token): any {
     switch (token.type) {
         case "NUMBER":
             return parseFloat(token.value);
-        case "LITERAL":
-            if (token.value === "true") return true;
-            if (token.value === "false") return false;
-            if (token.value === "undefined") return undefined;
-            break;
         case "ARRAY":
             return parseArray(token.value);
         default:
@@ -54,9 +49,6 @@ export function parseArray(arrayValue: string): any[] {
 
 export function processArrayValue(value: string): any {
     if (/^\d+(\.\d+)?$/.test(value)) return parseFloat(value);
-
-    if (value === "true") return true;
-    if (value === "false") return false;
 
     if (value === "undefined") return undefined;
 

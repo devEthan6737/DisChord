@@ -4,6 +4,7 @@ import { peek } from './Utils/Peek';
 import { parseBot } from './Statements/Bot';
 import { parseConsole } from './Statements/Console';
 import StateInstance from './Utils/State';
+import { parseType } from './Statements/Type';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -20,6 +21,10 @@ export class Parser {
                 case "CONSOLA":
                     consume(this.tokens, "CONSOLA");
                     nodes.push(parseConsole(this.tokens));
+                    break;
+                case "TIPO":
+                    consume(this.tokens, "TIPO");
+                    nodes.push(parseType(this.tokens));
                     break;
                 default:
                     throw new Error(`${peek(this.tokens).type} no es una palabra reservada o no pertenece a este bloque.`);

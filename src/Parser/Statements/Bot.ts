@@ -3,7 +3,7 @@ import { parseBlock } from "../Utils/Blocks";
 import { consume } from "../Utils/Consume";
 
 export function parseBot(tokens: Token[]): ASTNode {
-    const name = consume(tokens, "STRING");
+    const name = consume(tokens, "TEXTO");
     const body = parseBlock(tokens);
 
     return {

@@ -4,7 +4,7 @@ import { consume } from "../Utils/Consume";
 
 export function parseCommand(tokens: Token[]): ASTNode {
     consume(tokens, "COMANDO");
-    const name = consume(tokens, "STRING");
+    const name = consume(tokens, "TEXTO");
     const body = parseBlock(tokens);
 
     return {

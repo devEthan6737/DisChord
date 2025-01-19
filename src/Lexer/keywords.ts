@@ -5,5 +5,7 @@ export = [
     "SI",
     "SINO",
     "VAR",
-    "CONSOLA"
+
+    "CONSOLA",
+    "TIPO"
 ];

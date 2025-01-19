@@ -16,6 +16,7 @@ function executeAST(ast: any) {
 
         if (peek.type === 'CONSOLA') {
             console.log(peek.value);
+        } else if (peek.type === 'BOT') {
         } else if (peek.children) {
             executeAST( peek.children );
         }

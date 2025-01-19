@@ -45,7 +45,7 @@ export class Lexer {
                 throw new Error(`Token inesperado: ${char}`);
             }
 
-            if (char === '"') { // Strings
+            if (char === '"') { // Simple Strings
                 let value = "";
                 char = this.input[++current];
                 while (char !== '"' && current < this.input.length) {
@@ -53,7 +53,19 @@ export class Lexer {
                     char = this.input[++current];
                 }
                 current++;
-                tokens.push({ type: "STRING", value });
+                tokens.push({ type: "TEXTO", value });
+                continue;
+            }
+
+            if (char === '`') { // Template Strings
+                let value = "";
+                char = this.input[++current];
+                while (char !== '`' && current < this.input.length) {
+                    value += char;
+                    char = this.input[++current];
+                }
+                current++;
+                tokens.push({ type: "TEXTO", value });
                 continue;
             }
 
@@ -66,21 +78,44 @@ export class Lexer {
                 }
                 value += ']';
                 current++;
-                tokens.push({ type: "ARRAY", value });
+                tokens.push({ type: "LISTA", value });
                 continue;
             }
 
-            if (/[0-9]/.test(char)) { // Números
+            if (/[0-9]/.test(char) || char === "0") { // Números y BigInt
                 let value = "";
-                while (/[0-9.]/.test(char) && current < this.input.length) {
+            
+                if (char === "0" && /[bBoOxX]/.test(this.input[current + 1])) { // bin, oct, hex
                     value += char;
                     char = this.input[++current];
+                    value += char;
+                    char = this.input[++current];
+            
+                    while (/[0-9a-fA-F]/.test(char) && current < this.input.length) {
+                        value += char;
+                        char = this.input[++current];
+                    }
+                } else {
+                    while (/[0-9]/.test(char) && current < this.input.length) { // Números normales (decimal)
+                        value += char;
+                        char = this.input[++current];
+                    }
                 }
-                tokens.push({ type: "NUMBER", value });
+
+                if (char === "n") {
+                    value += char;
+                    char = this.input[++current];
+                    tokens.push({ type: "BIGINT", value });
+                } else {
+                    // Es un número normal
+                    tokens.push({ type: "NUMERO", value });
+                }
                 continue;
             }
+            
+            
 
-            if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined
+            if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";
                 while (/[a-zA-Z]/.test(char) && current < this.input.length) {
                     value += char;
@@ -88,10 +123,14 @@ export class Lexer {
                 }
                 if (this.keywords.includes(value)) {
                     tokens.push({ type: value.toUpperCase(), value });
-                } else if (["true", "false", "undefined"].includes(value)) {
-                    tokens.push({ type: "LITERAL", value });
+                } else if (value === 'indefinido') {
+                    tokens.push({ type: "INDEFINIDO", value });
+                } else if (value === 'nulo') {
+                    tokens.push({ type: "NULO", value });
+                } else if (["verdadero", "falso", "indefinido", "nulo"].includes(value)) {
+                    tokens.push({ type: "BOOL", value });
                 } else {
-                    tokens.push({ type: "IDENTIFIER", value });
+                    tokens.push({ type: value, value });
                 }
                 continue;
             }

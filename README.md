@@ -17,4 +17,3 @@ BOT "MiToken" {
 # Pendiente
 - Extender funcionalidades del método Consola.
 - Crear la función útil llamada "ReadStatements" la cual evitará bucles en ficheros como Bot, main o Command del Parser.
-- Exportar las variables "Current" y "Tokens" desde que se comienza a Parsear.
