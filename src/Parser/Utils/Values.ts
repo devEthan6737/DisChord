@@ -2,9 +2,9 @@ import { Token } from "../Types/types";
 
 export function processValue(token: Token): any {
     switch (token.type) {
-        case "NUMBER":
+        case "NUMERO":
             return parseFloat(token.value);
-        case "ARRAY":
+        case "LISTA":
             return parseArray(token.value);
         default:
             return token.value;

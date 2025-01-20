@@ -101,18 +101,23 @@ export class Lexer {
                         char = this.input[++current];
                     }
                 }
-
+            
                 if (char === "n") {
                     value += char;
                     char = this.input[++current];
+                }
+            
+                // Asegúrate de agregar todo como un único token si es BIGINT
+                if (/^[0-9]+n$/.test(value) || /^0[bBoOxX][0-9a-fA-F]+n$/.test(value)) {
                     tokens.push({ type: "BIGINT", value });
                 } else {
-                    // Es un número normal
                     tokens.push({ type: "NUMERO", value });
                 }
+            
                 continue;
             }
             
+
             if (char === "<") { // Inicio de una expresión
                 let value = "<";
                 char = this.input[++current];
@@ -125,7 +130,6 @@ export class Lexer {
                 tokens.push({ type: "EXPRESION", value });
                 continue;
             }
-            
 
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";

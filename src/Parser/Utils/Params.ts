@@ -9,7 +9,10 @@ export function params(value: string): Token {
         switch (lexer[current].type) {
             case "TIPO":
                 current++
-                return lexer[current];
+                return {
+                    type: lexer[current].type,
+                    value: lexer[current].type
+                };
         }
 
         current++;
