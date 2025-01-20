@@ -11,7 +11,7 @@ export function parseConsole(tokens: Token[]): ASTNode {
         const expression: Token = params(value);
         return {
             type: 'CONSOLA',
-            value: processValue(expression)
+            value: expression.type === expression.value? expression.value : processValue(expression)
         }
     }else return {
         type: "CONSOLA",

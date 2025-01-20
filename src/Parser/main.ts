@@ -11,6 +11,7 @@ export class Parser {
 
     public parse(): ASTNode[] {
         const nodes: ASTNode[] = [];
+        console.log(this.tokens)
 
         while (StateInstance.current < this.tokens.length) {
             switch (peek(this.tokens).type) {

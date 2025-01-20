@@ -7,5 +7,12 @@ export = [
     "VAR",
 
     "CONSOLA",
-    "TIPO"
+    "TIPO",
+
+    "MAS",
+    "MENOS",
+    "POR",
+    "ENTRE",
+    "RESTO",
+    "EXP"
 ];
