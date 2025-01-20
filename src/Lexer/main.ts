@@ -113,6 +113,18 @@ export class Lexer {
                 continue;
             }
             
+            if (char === "<") { // Inicio de una expresión
+                let value = "<";
+                char = this.input[++current];
+                while (char !== ">" && current < this.input.length) {
+                    value += char;
+                    char = this.input[++current];
+                }
+                value += ">";
+                current++;
+                tokens.push({ type: "EXPRESION", value });
+                continue;
+            }
             
 
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null

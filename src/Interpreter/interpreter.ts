@@ -8,7 +8,7 @@ const lexer = new Lexer(code);
 const parser = new Parser(lexer.tokenize());
 
 function executeAST(ast: any) {
-    console.log(JSON.stringify(ast))
+    // console.log(JSON.stringify(ast))
 
     let current = 0;
     while (current < ast.length) {
