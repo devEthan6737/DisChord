@@ -113,17 +113,65 @@ export class Lexer {
             }
 
             if (char === "<") { // Inicio de una expresión
-                let value = "<";
+                let value = "";
+                let expression = "";
                 char = this.input[++current];
+            
                 while (char !== ">" && current < this.input.length) {
-                    value += char;
+                    expression += char;
                     char = this.input[++current];
                 }
-                value += ">";
+            
+                if (char !== ">") {
+                    throw new Error("Expresión no cerrada con '>'");
+                }
+            
+                value = expression.trim();
                 current++;
-                tokens.push({ type: "EXPRESION", value });
+
+                const operatorMatch = /(\d+)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+)/.exec(value); // Resuelve expresiones simples como "1 MAS 2"
+            
+                if (operatorMatch) {
+                    const left = parseFloat(operatorMatch[1]);
+                    const operator = operatorMatch[2];
+                    const right = parseFloat(operatorMatch[3]);
+            
+                    let result;
+                    switch (operator) {
+                        case "MAS":
+                            result = left + right;
+                            break;
+                        case "MENOS":
+                            result = left - right;
+                            break;
+                        case "POR":
+                            result = left * right;
+                            break;
+                        case "ENTRE":
+                            if (right === 0) {
+                                throw new Error("División entre cero en la expresión.");
+                            }
+                            result = left / right;
+                            break;
+                        case "RESTO":
+                            result = left % right;
+                            break;
+                        case "EXP":
+                            result = Math.pow(left, right);
+                            break;
+                        default:
+                            throw new Error(`Operador desconocido: ${operator}`);
+                    }
+            
+                    tokens.push({ type: "NUMERO", value: result.toString() });
+                } else {
+                    // Si no se resuelve como operación, se mantiene como EXPRESION
+                    tokens.push({ type: "EXPRESION", value: `<${value}>` });
+                }
+            
                 continue;
             }
+            
 
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";
@@ -139,8 +187,6 @@ export class Lexer {
                     tokens.push({ type: "NULO", value });
                 } else if (["verdadero", "falso", "indefinido", "nulo"].includes(value)) {
                     tokens.push({ type: "BOOL", value });
-                } else if([ "MAS", "MENOS", "POR", "ENTRE", "RESTO", "EXP" ].includes(value)) {
-                    tokens.push({ type: "OPERADOR", value });
                 } else {
                     tokens.push({ type: value, value });
                 }
