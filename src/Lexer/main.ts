@@ -18,7 +18,7 @@ export class Lexer {
                 continue;
             }
 
-            if (char === "/") {
+            if (char === "/") { // Comentarios
                 char = this.input[++current]; // Avanza al siguiente carácter
                 if (char === "/") {
                     while (char !== "\n" && current < this.input.length) {
@@ -40,22 +40,10 @@ export class Lexer {
                 throw new Error(`Token inesperado: ${char}`);
             }
 
-            if (char === '"') { // Simple Strings
+            if (char === '"') { // Strings
                 let value = "";
                 char = this.input[++current];
                 while (char !== '"' && current < this.input.length) {
-                    value += char;
-                    char = this.input[++current];
-                }
-                current++;
-                tokens.push({ type: "TEXTO", value });
-                continue;
-            }
-
-            if (char === '`') { // Template Strings
-                let value = "";
-                char = this.input[++current];
-                while (char !== '`' && current < this.input.length) {
                     value += char;
                     char = this.input[++current];
                 }
@@ -117,28 +105,28 @@ export class Lexer {
                 let expression = "";
                 let depth = 1;
                 char = this.input[++current];
-
+            
                 while (depth > 0 && current < this.input.length) {
                     if (char === "<") depth++;
                     if (char === ">") depth--;
-                    if (depth > 0) expression += char;
+                    if (depth > 0 || (depth === 0 && char !== '>')) expression += char;
                     char = this.input[++current];
                 }
-
+            
                 if (depth !== 0) {
                     throw new Error("Expresión no cerrada con '>'");
                 }
-
+            
                 value = expression.trim();
                 current++;
-
-                const evaluateExpression = (expr: string): number => {
-                    const operatorMatch = /(\d+|\<[^>]+\>)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+|\<[^>]+\>)/.exec(expr);
+            
+                const evaluateExpression = (expr: string): any => {
+                    const operatorMatch = /(\d+|".*?"|\<[^>]+\>)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+|".*?"|\<[^>]+\>)/.exec(expr);
                     if (operatorMatch) {
-                        const left = operatorMatch[1].startsWith('<') ? evaluateExpression(operatorMatch[1].slice(1, -1)) : parseFloat(operatorMatch[1]);
+                        const left = operatorMatch[1].startsWith('<') ? evaluateExpression(operatorMatch[1].slice(1, -1)) : (operatorMatch[1].startsWith('"') ? operatorMatch[1].slice(1, -1) : parseFloat(operatorMatch[1]));
                         const operator = operatorMatch[2];
-                        const right = operatorMatch[3].startsWith('<') ? evaluateExpression(operatorMatch[3].slice(1, -1)) : parseFloat(operatorMatch[3]);
-
+                        const right = operatorMatch[3].startsWith('<') ? evaluateExpression(operatorMatch[3].slice(1, -1)) : (operatorMatch[3].startsWith('"') ? operatorMatch[3].slice(1, -1) : parseFloat(operatorMatch[3]));
+            
                         switch (operator) {
                             case "MAS":
                                 return left + right;
@@ -155,16 +143,13 @@ export class Lexer {
                             default:
                                 throw new Error(`Operador desconocido: ${operator}`);
                         }
-                    } else if (!isNaN(parseInt(expr))) {
-                        char = this.input[++current];
-                        return parseInt(expr);
                     } else {
                         throw new Error(`Expresión no válida: ${expr}`);
                     }
                 };
-
+            
                 const result = evaluateExpression(value);
-                tokens.push({ type: "NUMERO", value: result.toString() });
+                tokens.push({ type: typeof result === 'string' ? "TEXTO" : "NUMERO", value: result.toString() });
                 continue;
             }
 
