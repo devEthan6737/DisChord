@@ -115,63 +115,58 @@ export class Lexer {
             if (char === "<") { // Inicio de una expresión
                 let value = "";
                 let expression = "";
+                let depth = 1;
                 char = this.input[++current];
-            
-                while (char !== ">" && current < this.input.length) {
-                    expression += char;
+
+                while (depth > 0 && current < this.input.length) {
+                    if (char === "<") depth++;
+                    if (char === ">") depth--;
+                    if (depth > 0) expression += char;
                     char = this.input[++current];
                 }
-            
-                if (char !== ">") {
+
+                if (depth !== 0) {
                     throw new Error("Expresión no cerrada con '>'");
                 }
-            
+
                 value = expression.trim();
                 current++;
 
-                const operatorMatch = /(\d+)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+)/.exec(value); // Resuelve expresiones simples como "1 MAS 2"
-            
-                if (operatorMatch) {
-                    const left = parseFloat(operatorMatch[1]);
-                    const operator = operatorMatch[2];
-                    const right = parseFloat(operatorMatch[3]);
-            
-                    let result;
-                    switch (operator) {
-                        case "MAS":
-                            result = left + right;
-                            break;
-                        case "MENOS":
-                            result = left - right;
-                            break;
-                        case "POR":
-                            result = left * right;
-                            break;
-                        case "ENTRE":
-                            if (right === 0) {
-                                throw new Error("División entre cero en la expresión.");
-                            }
-                            result = left / right;
-                            break;
-                        case "RESTO":
-                            result = left % right;
-                            break;
-                        case "EXP":
-                            result = Math.pow(left, right);
-                            break;
-                        default:
-                            throw new Error(`Operador desconocido: ${operator}`);
+                const evaluateExpression = (expr: string): number => {
+                    const operatorMatch = /(\d+|\<[^>]+\>)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+|\<[^>]+\>)/.exec(expr);
+                    if (operatorMatch) {
+                        const left = operatorMatch[1].startsWith('<') ? evaluateExpression(operatorMatch[1].slice(1, -1)) : parseFloat(operatorMatch[1]);
+                        const operator = operatorMatch[2];
+                        const right = operatorMatch[3].startsWith('<') ? evaluateExpression(operatorMatch[3].slice(1, -1)) : parseFloat(operatorMatch[3]);
+
+                        switch (operator) {
+                            case "MAS":
+                                return left + right;
+                            case "MENOS":
+                                return left - right;
+                            case "POR":
+                                return left * right;
+                            case "ENTRE":
+                                return left / right;
+                            case "RESTO":
+                                return left % right;
+                            case "EXP":
+                                return Math.pow(left, right);
+                            default:
+                                throw new Error(`Operador desconocido: ${operator}`);
+                        }
+                    } else if (!isNaN(parseInt(expr))) {
+                        char = this.input[++current];
+                        return parseInt(expr);
+                    } else {
+                        throw new Error(`Expresión no válida: ${expr}`);
                     }
-            
-                    tokens.push({ type: "NUMERO", value: result.toString() });
-                } else {
-                    // Si no se resuelve como operación, se mantiene como EXPRESION
-                    tokens.push({ type: "EXPRESION", value: `<${value}>` });
-                }
-            
+                };
+
+                const result = evaluateExpression(value);
+                tokens.push({ type: "NUMERO", value: result.toString() });
                 continue;
             }
-            
 
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";
