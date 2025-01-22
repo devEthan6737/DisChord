@@ -14,5 +14,7 @@ export = [
     "POR",
     "ENTRE",
     "RESTO",
-    "EXP"
+    "EXP",
+    "INTRO",
+    "ESPACIO",
 ];

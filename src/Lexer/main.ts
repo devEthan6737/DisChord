@@ -101,55 +101,90 @@ export class Lexer {
             }
 
             if (char === "<") { // Inicio de una expresión
-                let value = "";
                 let expression = "";
                 let depth = 1;
                 char = this.input[++current];
-            
+                
                 while (depth > 0 && current < this.input.length) {
                     if (char === "<") depth++;
                     if (char === ">") depth--;
-                    if (depth > 0 || (depth === 0 && char !== '>')) expression += char;
+                    if (depth > 0) expression += char;
                     char = this.input[++current];
                 }
-            
+                
                 if (depth !== 0) {
                     throw new Error("Expresión no cerrada con '>'");
                 }
-            
-                value = expression.trim();
-                current++;
-            
+                
                 const evaluateExpression = (expr: string): any => {
-                    const operatorMatch = /(\d+|".*?"|\<[^>]+\>)\s+(MAS|MENOS|POR|ENTRE|RESTO|EXP)\s+(\d+|".*?"|\<[^>]+\>)/.exec(expr);
-                    if (operatorMatch) {
-                        const left = operatorMatch[1].startsWith('<') ? evaluateExpression(operatorMatch[1].slice(1, -1)) : (operatorMatch[1].startsWith('"') ? operatorMatch[1].slice(1, -1) : parseFloat(operatorMatch[1]));
-                        const operator = operatorMatch[2];
-                        const right = operatorMatch[3].startsWith('<') ? evaluateExpression(operatorMatch[3].slice(1, -1)) : (operatorMatch[3].startsWith('"') ? operatorMatch[3].slice(1, -1) : parseFloat(operatorMatch[3]));
+                    const tokens: string[] = [];
+                    const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g;
+                    let match;
+                    
+                    while ((match = tokenPattern.exec(expr)) !== null) {
+                        tokens.push(match[0]);
+                    }
+                    
+                    if (tokens.length === 0) {
+                        throw new Error("Expresión vacía");
+                    }
             
+                    const parseOperand = (operand: string): any => {
+                        if (operand.startsWith('<')) {
+                            return evaluateExpression(operand.slice(1, -1).trim());
+                        } else if (operand.startsWith('"')) {
+                            return operand.slice(1, -1);
+                        } else if (operand === 'ESPACIO') {
+                            return ' ';
+                        } else if (operand === 'INTRO') {  // <- Nueva condición para INTRO
+                            return '\n';
+                        } else if (['verdadero', 'falso'].includes(operand)) {
+                            return operand === 'verdadero';
+                        } else if (!isNaN(operand as any)) {
+                            return parseFloat(operand);
+                        } else {
+                            throw new Error(`Operando desconocido: ${operand}`);
+                        }
+                    };                    
+            
+                    let result = parseOperand(tokens[0]);
+                    
+                    for (let i = 1; i < tokens.length; i += 2) {
+                        const operator = tokens[i];
+                        const right = parseOperand(tokens[i + 1]);
+                        
                         switch (operator) {
                             case "MAS":
-                                return left + right;
+                                result = result + right;
+                                break;
                             case "MENOS":
-                                return left - right;
+                                result = result - right;
+                                break;
                             case "POR":
-                                return left * right;
+                                result = result * right;
+                                break;
                             case "ENTRE":
-                                return left / right;
+                                result = result / right;
+                                break;
                             case "RESTO":
-                                return left % right;
+                                result = result % right;
+                                break;
                             case "EXP":
-                                return Math.pow(left, right);
+                                result = Math.pow(result, right);
+                                break;
                             default:
                                 throw new Error(`Operador desconocido: ${operator}`);
                         }
-                    } else {
-                        throw new Error(`Expresión no válida: ${expr}`);
                     }
+
+                    return result;
                 };
-            
-                const result = evaluateExpression(value);
-                tokens.push({ type: typeof result === 'string' ? "TEXTO" : "NUMERO", value: result.toString() });
+
+                const result = evaluateExpression(expression.trim());
+                tokens.push({
+                    type: typeof result === 'string' ? "TEXTO" : "NUMERO",
+                    value: result.toString()
+                });
                 continue;
             }
 
