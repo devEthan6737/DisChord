@@ -17,4 +17,12 @@ export = [
     "EXP",
     "INTRO",
     "ESPACIO",
+
+    "MAYOR",
+    "MENOR",
+    "MAYOR_IGUAL",
+    "MENOR_IGUAL",
+    "NO",
+    "IGUAL_TIPADO",
+    "IGUAL",
 ];

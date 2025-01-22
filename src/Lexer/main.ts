@@ -1,5 +1,70 @@
 import { Token } from "src/Parser/Types/types";
 
+const evaluateExpression = (expr: string): any => {
+    const tokens: string[] = [];
+    // Actualizar el regex para incluir nuevos operadores
+    const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z_]+|MAYOR_IGUAL|MENOR_IGUAL|IGUAL_TIPADO|MAS|MENOS|POR|ENTRE|RESTO|EXP|MAYOR|MENOR|NO|IGUAL)/g;
+    let match;
+    
+    while ((match = tokenPattern.exec(expr)) !== null) {
+        tokens.push(match[0]);
+    }
+    
+    if (tokens.length === 0) {
+        throw new Error("Expresión vacía");
+    }
+
+    // Nuevo sistema de parsing con precedencia
+    const parseOperand = (operand: string): any => {
+        if (operand.startsWith('<')) {
+            return evaluateExpression(operand.slice(1, -1).trim());
+        } else if (operand.startsWith('"')) {
+            return operand.slice(1, -1);
+        } else if (operand === 'ESPACIO') return ' ';
+        else if (operand === 'INTRO') return '\n';
+        else if (operand === 'verdadero') return true;
+        else if (operand === 'falso') return false;
+        else if (!isNaN(operand as any)) return parseFloat(operand);
+        throw new Error(`Operando desconocido: ${operand}`);
+    };
+
+    // Manejar operadores unarios (NO)
+    let index = 0;
+    const parseUnary = (): any => {
+        if (tokens[index] === 'NO') {
+            index++;
+            return !parseUnary();
+        }
+        return parseOperand(tokens[index++]);
+    };
+
+    let result = parseUnary();
+
+    // Manejar operadores binarios
+    while (index < tokens.length) {
+        const operator = tokens[index++];
+        const right = parseUnary();
+
+        switch (operator) {
+            case "MAS": result += right; break;
+            case "MENOS": result -= right; break;
+            case "POR": result *= right; break;
+            case "ENTRE": result /= right; break;
+            case "RESTO": result %= right; break;
+            case "EXP": result = Math.pow(result, right); break;
+            case "MAYOR": result = result > right; break;
+            case "MENOR": result = result < right; break;
+            case "MAYOR_IGUAL": result = result >= right; break;
+            case "MENOR_IGUAL": result = result <= right; break;
+            case "IGUAL": result = result == right; break;
+            case "IGUAL_TIPADO": result = result === right; break;
+            default: throw new Error(`Operador desconocido: ${operator}`);
+        }
+    }
+
+    return result;
+};
+
 export class Lexer {
     private keywords = require('./keywords');
     private symbols = require('./symbols');
@@ -90,7 +155,7 @@ export class Lexer {
                     char = this.input[++current];
                 }
 
-                // Asegúrate de agregar todo como un único token si es BIGINT
+                // Asegurar de agregar todo como un único token si es BIGINT
                 if (/^[0-9]+n$/.test(value) || /^0[bBoOxX][0-9a-fA-F]+n$/.test(value)) {
                     tokens.push({ type: "BIGINT", value });
                 } else {
@@ -100,112 +165,57 @@ export class Lexer {
                 continue;
             }
 
-                if (char === "<") { // Inicio de una expresión
-                    let expression = "";
-                    let depth = 1;
+            if (char === "<") { // Inicio de una expresión
+                let expression = "";
+                let depth = 1;
+                char = this.input[++current];
+                
+                while (depth > 0 && current < this.input.length) {
+                    if (char === "<") depth++;
+                    if (char === ">") depth--;
+                    if (depth > 0) expression += char;
                     char = this.input[++current];
-                    
-                    while (depth > 0 && current < this.input.length) {
-                        if (char === "<") depth++;
-                        if (char === ">") depth--;
-                        if (depth > 0) expression += char;
-                        char = this.input[++current];
-                    }
-                    
-                    if (depth !== 0) {
-                        throw new Error("Expresión no cerrada con '>'");
-                    }
-
-                    const evaluateExpression = (expr: string): any => {
-                        const tokens: string[] = [];
-                        const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g;
-                        let match;
-                        
-                        while ((match = tokenPattern.exec(expr)) !== null) {
-                            tokens.push(match[0]);
-                        }
-                        
-                        if (tokens.length === 0) {
-                            throw new Error("Expresión vacía");
-                        }
-                
-                        const parseOperand = (operand: string): any => {
-                            if (operand.startsWith('<')) {
-                                return evaluateExpression(operand.slice(1, -1).trim());
-                            } else if (operand.startsWith('"')) {
-                                return operand.slice(1, -1);
-                            } else if (operand === 'ESPACIO') {
-                                return ' ';
-                            } else if (operand === 'INTRO') {
-                                return '\n';
-                            } else if (['verdadero', 'falso'].includes(operand)) {
-                                return operand === 'verdadero';
-                            } else if (!isNaN(operand as any)) {
-                                return parseFloat(operand);
-                            } else {
-                                throw new Error(`Operando desconocido: ${operand}`);
-                            }
-                        };                    
-                
-                        let result = parseOperand(tokens[0]);
-                        
-                        for (let i = 1; i < tokens.length; i += 2) {
-                            const operator = tokens[i];
-                            const right = parseOperand(tokens[i + 1]);
-                            
-                            switch (operator) {
-                                case "MAS":
-                                    result = result + right;
-                                    break;
-                                case "MENOS":
-                                    result = result - right;
-                                    break;
-                                case "POR":
-                                    result = result * right;
-                                    break;
-                                case "ENTRE":
-                                    result = result / right;
-                                    break;
-                                case "RESTO":
-                                    result = result % right;
-                                    break;
-                                case "EXP":
-                                    result = Math.pow(result, right);
-                                    break;
-                                default:
-                                    throw new Error(`Operador desconocido: ${operator}`);
-                            }
-                        }
-    
-                        return result;
-                    };
-                
-                    // Verificar si es una expresión que comienza con TIPO
-                    const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g;
-                    const firstTokenMatch = tokenPattern.exec(expression.trim());
-                    
-                    if (firstTokenMatch && firstTokenMatch[0] === 'TIPO') {
-                        // Tokenizar la expresión completa como RAW para el parser
-                        tokens.push({ type: "EXPRESION", value: '<' + expression.trim() + '>' });
-                    } else {
-                        // Evaluar normalmente otras expresiones
-                        const result = evaluateExpression(expression.trim());
-                        tokens.push({
-                            type: typeof result === 'string' ? "TEXTO" : "NUMERO",
-                            value: result.toString()
-                        });
-                    }
-                    continue;
                 }
                 
+                if (depth !== 0) {
+                    throw new Error("Expresión no cerrada con '>'");
+                }
+            
+                // Verificar si es una expresión que comienza con TIPO
+                const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g;
+                const firstTokenMatch = tokenPattern.exec(expression.trim());
                 
+                if (firstTokenMatch && firstTokenMatch[0] === 'TIPO') {
+                    // Tokenizar la expresión completa como RAW para el parser
+                    tokens.push({ type: "EXPRESION", value: '<' + expression.trim() + '>' });
+                } else {
+                    // Evaluar normalmente otras expresiones
+                    const result = evaluateExpression(expression.trim());
+
+                    switch (result) {
+                        case true:
+                            tokens.push({ type: "BOOL", value: 'verdadero' });
+                            break;
+                        case false:
+                            tokens.push({ type: "BOOL", value: 'falso' });
+                            break;
+                        default:
+                            tokens.push({
+                                type: typeof result === 'string' ? "TEXTO" : "NUMERO",
+                                value: result.toString()
+                            });
+                        }
+                }
+                continue;
+            }
 
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";
-                while (/[a-zA-Z]/.test(char) && current < this.input.length) {
+                while (/[a-zA-Z0-9_]/.test(char) && current < this.input.length) {
                     value += char;
                     char = this.input[++current];
                 }
+
                 if (this.keywords.includes(value)) {
                     tokens.push({ type: value.toUpperCase(), value });
                 } else if (value === 'indefinido') {
@@ -214,6 +224,8 @@ export class Lexer {
                     tokens.push({ type: "NULO", value });
                 } else if (["verdadero", "falso", "indefinido", "nulo"].includes(value)) {
                     tokens.push({ type: "BOOL", value });
+                } else if ([ "MAYOR", "MENOR", "MAYOR_IGUAL", "MENOR_IGUAL", "NO", "IGUAL_TIPADO", "IGUAL" ].includes(value)) {
+                    tokens.push({ type: "COMPARADOR", value });
                 } else {
                     tokens.push({ type: value, value });
                 }
