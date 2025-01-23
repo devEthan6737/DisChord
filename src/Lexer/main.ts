@@ -230,7 +230,7 @@ export class Lexer {
                     tokens.push({ type: "INDEFINIDO", value });
                 } else if (value === 'nulo') {
                     tokens.push({ type: "NULO", value });
-                } else if (["verdadero", "falso", "indefinido", "nulo"].includes(value)) {
+                } else if (["verdadero", "falso" ].includes(value)) {
                     tokens.push({ type: "BOOL", value });
                 } else if ([ "MAYOR", "MENOR", "MAYOR_IGUAL", "MENOR_IGUAL", "NO", "IGUAL_TIPADO", "IGUAL" ].includes(value)) {
                     tokens.push({ type: "COMPARADOR", value });

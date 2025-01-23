@@ -26,6 +26,23 @@ export class Parser {
                     consume(this.tokens, "TIPO");
                     nodes.push(parseType(this.tokens));
                     break;
+                
+                case "NUMERO":
+                    consume(this.tokens, "NUMERO");
+                    break;
+                case "TEXTO":
+                    consume(this.tokens, "TEXTO");
+                    break;
+                case "BOOL":
+                    consume(this.tokens, "BOOL");
+                    break;
+                case "INDEFINIDO":
+                    consume(this.tokens, "INDEFINIDO");
+                    break;
+                case "NULO":
+                    consume(this.tokens, "NULO");
+                    break;
+
                 default:
                     throw new Error(`${peek(this.tokens).type} no es una palabra reservada o no pertenece a este bloque.`);
             }
