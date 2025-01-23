@@ -10,6 +10,21 @@ export function parseCondition(tokens: Token[]): ASTNode {
     let value = processValue(valueToken);
     let body: any = parseBlock(tokens);
 
+    while (tokens[StateInstance.current] && peek(tokens).type === 'ADEMAS') {
+        consume(tokens, 'ADEMAS');
+
+        if(value === 'falso') {
+            let valueToken = consume(tokens, 'BOOL');
+            value = processValue(valueToken);
+            let conditionParsed = parseBlock(tokens);
+
+            body = conditionParsed
+        } else {
+            consume(tokens, 'BOOL');
+            parseBlockWithoutExecute(tokens);
+        }
+    }
+
     if (tokens[StateInstance.current] && peek(tokens).type === 'SINO') {
         consume(tokens, 'SINO');
 

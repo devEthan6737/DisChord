@@ -4,6 +4,7 @@ export = [
     "RESPONDER",
     "SI",
     "SINO",
+    "ADEMAS",
     "VAR",
 
     "CONSOLA",
