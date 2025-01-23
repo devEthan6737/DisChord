@@ -12,6 +12,10 @@ class State {
     increment(): number {
         return this._current++;
     }
+
+    setCurrent(value: number): void {
+        this._current = value;
+    }
 }
 
 const StateInstance = new State();

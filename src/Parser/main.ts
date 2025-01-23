@@ -5,6 +5,7 @@ import { parseBot } from './Statements/Bot';
 import { parseConsole } from './Statements/Console';
 import StateInstance from './Utils/State';
 import { parseType } from './Statements/Type';
+import { parseCondition } from './Statements/Conditions';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -26,7 +27,11 @@ export class Parser {
                     consume(this.tokens, "TIPO");
                     nodes.push(parseType(this.tokens));
                     break;
-                
+                case "SI":
+                    consume(this.tokens, "SI");
+                    nodes.push(parseCondition(this.tokens));
+                    break;
+
                 case "NUMERO":
                     consume(this.tokens, "NUMERO");
                     break;
@@ -47,7 +52,7 @@ export class Parser {
                     throw new Error(`${peek(this.tokens).type} no es una palabra reservada o no pertenece a este bloque.`);
             }
         }
-
+    
         return nodes;
     }
 }

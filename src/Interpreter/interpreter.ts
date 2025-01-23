@@ -18,7 +18,7 @@ function executeAST(ast: any) {
             console.log(peek.value);
         } else if (peek.type === 'BOT') {
         } else if (peek.children) {
-            executeAST( peek.children );
+            executeAST(peek.children);
         }
 
         current++;
