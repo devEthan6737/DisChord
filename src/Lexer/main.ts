@@ -190,7 +190,15 @@ export class Lexer {
                     tokens.push({ type: "EXPRESION", value: '<' + expression.trim() + '>' });
                 } else {
                     // Evaluar normalmente otras expresiones
-                    const result = evaluateExpression(expression.trim());
+                    let result = evaluateExpression(expression.trim());
+
+                    if(typeof result === 'string') {
+                        if(result.includes('true')) {
+                            result = result.replace('true', 'verdadero');
+                        } else if(result.includes('false')) {
+                            result = result.replace('false', 'falso');
+                        }
+                    }
 
                     switch (result) {
                         case true:
