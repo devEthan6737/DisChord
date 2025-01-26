@@ -7,7 +7,7 @@ import { Parser } from "../main";
 import { Token, ASTNode } from "../Types/types";
 import StateInstance from "./State";
 
-export function parseBlock(tokens: Token[]): ASTNode[] {
+export function parseBlock(tokens: Token[]): ASTNode[] { // Extraer tokens de un bloque
     let startIndex = StateInstance.current; // Guardar posición inicial del bloque
     let depth = 0; // Profundidad de anidamiento
     const blockTokens: Token[] = []; // Tokens del bloque
@@ -49,7 +49,7 @@ export function parseBlock(tokens: Token[]): ASTNode[] {
     return parse; // Retornar nodos del bloque
 }
 
-export function parseBlockWithoutExecute(tokens: Token[]): ASTNode[] {
+export function parseBlockWithoutExecute(tokens: Token[]): ASTNode[] { // Sin ejecutar el bloque
     let startIndex = 2; // Guardar posición inicial del bloque
     let depth = 0; // Profundidad de anidamiento
     const blockTokens: Token[] = []; // Tokens del bloque
