@@ -1,5 +1,6 @@
 import { Token } from "../Types/types";
 import { consume } from "../Utils/Consume";
+import { parseExpression } from "../Utils/Expressions";
 import { peek } from "../Utils/Peek";
 import { processValue } from "../Utils/Values";
 import VarsInstance from "../Utils/Vars";
@@ -11,6 +12,8 @@ export function parseVar(tokens: Token[]) {
     else consume(tokens, "IGUAL");
 
     const varValue = consume(tokens, peek(tokens).type);
-
-    VarsInstance.addVar(varName.value, processValue(varValue));
+    if(varValue.type === "EXPRESION") {
+        const expression: Token = parseExpression(varValue.value);
+        VarsInstance.addVar(varName.value, processValue(expression));
+    }else VarsInstance.addVar(varName.value, processValue(varValue));
 }
