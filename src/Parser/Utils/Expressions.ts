@@ -4,6 +4,7 @@
 
 import { Token } from "../Types/types";
 import { consume } from "./Consume";
+import VarsInstance from "./Vars";
 
 export function parseExpression(tokens: Token[] | string): Token { // Cambiar el tipo de retorno a Token
     let expression: any = Array.isArray(tokens)? consume(tokens, "EXPRESION").value : tokens; 
@@ -70,6 +71,7 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
         else if (operand === 'verdadero') return true;
         else if (operand === 'falso') return false;
         else if (!isNaN(operand as any)) return parseFloat(operand);
+        else if(VarsInstance.hasVar(operand)) return VarsInstance.getVar(operand);
         throw new Error(`Operando desconocido: ${operand}`);
     };
 

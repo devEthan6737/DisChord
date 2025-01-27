@@ -7,6 +7,7 @@ import StateInstance from './Utils/State';
 import { parseType } from './Statements/Type';
 import { parseCondition } from './Statements/Conditions';
 import { parseExpression } from './Utils/Expressions';
+import { parseVar } from './Statements/Var';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -31,6 +32,10 @@ export class Parser {
                 case "SI":
                     consume(this.tokens, "SI");
                     nodes.push(parseCondition(this.tokens));
+                    break;
+                case "VAR":
+                    consume(this.tokens, "VAR");
+                    parseVar(this.tokens);
                     break;
 
                 case "EXPRESION":
