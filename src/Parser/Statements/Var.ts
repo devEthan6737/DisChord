@@ -1,6 +1,7 @@
 import { Token } from "../Types/types";
 import { consume } from "../Utils/Consume";
 import { peek } from "../Utils/Peek";
+import { processValue } from "../Utils/Values";
 import VarsInstance from "../Utils/Vars";
 
 export function parseVar(tokens: Token[]) {
@@ -11,5 +12,5 @@ export function parseVar(tokens: Token[]) {
 
     const varValue = consume(tokens, peek(tokens).type);
 
-    VarsInstance.addVar(varName.value, varValue.value);
+    VarsInstance.addVar(varName.value, processValue(varValue));
 }

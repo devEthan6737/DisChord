@@ -79,7 +79,10 @@ export class Lexer {
                         char = this.input[++current];
                     }
                 } else {
-                    while (/[0-9]/.test(char) && current < this.input.length) { // Números normales (decimal)
+                    while ((/[0-9]/.test(char) || char === ".") && current < this.input.length) {
+                        if (char === "." && value.includes(".")) { // Validar que no haya más de un punto decimal
+                            throw new Error("Número inválido: múltiples puntos decimales.");
+                        }
                         value += char;
                         char = this.input[++current];
                     }

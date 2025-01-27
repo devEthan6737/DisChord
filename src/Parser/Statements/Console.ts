@@ -15,6 +15,6 @@ export function parseConsole(tokens: Token[]): ASTNode {
         }
     }else return {
         type: "CONSOLA",
-        value,
+        value
     };
 }

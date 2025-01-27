@@ -105,6 +105,8 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
             case "MENOR_IGUAL": result = result <= right; break;
             case "IGUAL": result = result == right; break;
             case "IGUAL_TIPADO": result = result === right; break;
+            case "Y": result = result && right; break;
+            case "O": result = result || right; break;
             default: throw new Error(`Operador desconocido: ${operator}`);
         }
     }
