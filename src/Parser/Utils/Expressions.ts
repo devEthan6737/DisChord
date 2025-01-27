@@ -50,7 +50,7 @@ export function parseExpression(tokens: Token[] | string): Token { // Cambiar el
 
 const evaluateExpression = (expr: string): any => { // Evaluar la expresión
     const tokens: string[] = [];
-    const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z_]+|MAYOR_IGUAL|MENOR_IGUAL|IGUAL_TIPADO|MAS|MENOS|POR|ENTRE|RESTO|EXP|MAYOR|MENOR|NO|IGUAL)/g; // Actualizar el regex para incluir nuevos operadores
+    const tokenPattern = /(\d+(\.\d+)?|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z_]+|MAYOR_IGUAL|MENOR_IGUAL|IGUAL_TIPADO|MAS|MENOS|POR|ENTRE|RESTO|EXP|MAYOR|MENOR|NO|IGUAL)/g; // Actualizar el regex para incluir nuevos operadores
     let match; // Actualizar el while para incluir nuevos operadores
 
     while ((match = tokenPattern.exec(expr)) !== null) { // Actualizar el while para incluir nuevos operadores
