@@ -8,7 +8,7 @@ import { parseType } from './Statements/Type';
 import { parseCondition } from './Statements/Conditions';
 import { parseExpression } from './Utils/Expressions';
 import { parseVar } from './Statements/Var';
-import { parseWhile } from './Statements/While';
+import { parseEach, parseWhile } from './Statements/Loops';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -41,6 +41,10 @@ export class Parser {
                 case "MIENTRAS":
                     consume(this.tokens, "MIENTRAS");
                     nodes = nodes.concat(parseWhile(this.tokens));
+                    break;
+                case "CADA":
+                    consume(this.tokens, "CADA");
+                    nodes = nodes.concat(parseEach(this.tokens));
                     break;
                 case "PARAR":
                     nodes.push(consume(this.tokens, "PARAR"));
