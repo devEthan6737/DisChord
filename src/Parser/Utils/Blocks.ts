@@ -11,7 +11,7 @@ export function parseBlock(tokens: Token[]): ASTNode[] { // Extraer tokens de un
     let startIndex = StateInstance.current; // Guardar posición inicial del bloque
     let depth = 0; // Profundidad de anidamiento
     const blockTokens: Token[] = []; // Tokens del bloque
-    
+
     for (let i = startIndex; i < tokens.length; i++) { // Buscar el inicio del bloque
         if (tokens[i].type === "L_BRACE") { // Inicio del bloque
             depth = 1; // Inicializar profundidad

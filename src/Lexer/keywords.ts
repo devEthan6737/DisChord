@@ -6,6 +6,7 @@ export = [
     "SINO",
     "ADEMAS",
     "VAR",
+    "MIENTRAS",
 
     "CONSOLA",
     "TIPO",

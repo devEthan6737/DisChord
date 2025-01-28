@@ -8,12 +8,13 @@ import { parseType } from './Statements/Type';
 import { parseCondition } from './Statements/Conditions';
 import { parseExpression } from './Utils/Expressions';
 import { parseVar } from './Statements/Var';
+import { parseWhile } from './Statements/While';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
 
     public parse(): ASTNode[] {
-        const nodes: ASTNode[] = [];
+        let nodes: ASTNode[] = [];
 
         while (StateInstance.current < this.tokens.length) {
             switch (peek(this.tokens).type) {
@@ -37,6 +38,13 @@ export class Parser {
                     consume(this.tokens, "VAR");
                     parseVar(this.tokens);
                     break;
+                case "MIENTRAS":
+                    consume(this.tokens, "MIENTRAS");
+                    nodes = nodes.concat(parseWhile(this.tokens));
+                    break;
+                case "PARAR":
+                    consume(this.tokens, "PARAR");
+                    return nodes;
 
                 case "EXPRESION":
                     nodes.push(parseExpression(this.tokens));
@@ -64,7 +72,7 @@ export class Parser {
                     throw new Error(`${peek(this.tokens).type} no es una palabra reservada o no pertenece a este bloque.`);
             }
         }
-    
+
         return nodes;
     }
 }
