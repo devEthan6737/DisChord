@@ -43,8 +43,11 @@ export class Parser {
                     nodes = nodes.concat(parseWhile(this.tokens));
                     break;
                 case "PARAR":
-                    consume(this.tokens, "PARAR");
+                    nodes.push(consume(this.tokens, "PARAR"));
                     return nodes;
+                case "SALTAR":
+                    nodes.push(consume(this.tokens, "SALTAR"));
+                    break;
 
                 case "EXPRESION":
                     nodes.push(parseExpression(this.tokens));
