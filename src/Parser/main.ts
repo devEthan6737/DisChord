@@ -9,6 +9,11 @@ import { parseCondition } from './Statements/Conditions';
 import { parseExpression } from './Utils/Expressions';
 import { parseVar } from './Statements/Var';
 import { parseEach, parseWhile } from './Statements/Loops';
+import { executeFunction, parseFunction } from './Statements/Function';
+import VarsInstance from './Utils/Vars';
+import FunctionInstance from './Utils/Functions';
+import { Lexer } from '../Lexer/main';
+import { processValue } from './Utils/Values';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -52,6 +57,10 @@ export class Parser {
                 case "SALTAR":
                     nodes.push(consume(this.tokens, "SALTAR"));
                     break;
+                case "FUNCION":
+                    consume(this.tokens, "FUNCION");
+                    nodes.push(parseFunction(this.tokens));
+                    break;
 
                 case "EXPRESION":
                     nodes.push(parseExpression(this.tokens));
@@ -76,6 +85,18 @@ export class Parser {
                     break;
 
                 default:
+                    const CurrentToken = peek(this.tokens);
+                    if (VarsInstance.hasVar(CurrentToken.type)) {
+                        consume(this.tokens, CurrentToken.type);
+                        break;
+                    }else if(FunctionInstance.hasFunction(CurrentToken.type)) {
+                        consume(this.tokens, CurrentToken.type);
+                        const expression = consume(this.tokens, 'EXPRESION');
+                        const args = new Lexer(expression.value.split(';').join('')).tokenize();
+                        nodes = nodes.concat(executeFunction(CurrentToken.type, args.map(param => processValue(param))));
+                        break;
+                    }
+
                     throw new Error(`${peek(this.tokens).type} no es una palabra reservada o no pertenece a este bloque.`);
             }
         }

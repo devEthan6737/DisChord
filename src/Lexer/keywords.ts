@@ -10,6 +10,7 @@ export = [
 
     "CONSOLA",
     "TIPO",
+    "FUNCION",
 
     "MAS",
     "MENOS",
