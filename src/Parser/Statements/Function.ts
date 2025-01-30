@@ -21,23 +21,6 @@ export function parseFunction(tokens: Token[]): ASTNode {
     };
 }
 
-// export function executeFunction(name: string): ASTNode[] {
-//     const startIndex = StateInstance.current;
-//     const functionBody: any = FunctionInstance.getFunction(name);
-
-//     if (!functionBody) throw new Error(`La función "${name}" no está definida.`);
-//     console.log(functionBody);
-
-//     StateInstance.setCurrent(0);
-
-//     const parser = new Parser(functionBody);
-//     const nodes: ASTNode[] = parser.parse();
-
-//     StateInstance.setCurrent(startIndex);
-
-//     return nodes;
-// }
-
 export function executeFunction(name: string, args: string[]): ASTNode[] {
     const startIndex = StateInstance.current;
     const funcData = FunctionInstance.getFunction(name);

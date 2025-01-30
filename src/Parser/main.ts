@@ -14,6 +14,7 @@ import VarsInstance from './Utils/Vars';
 import FunctionInstance from './Utils/Functions';
 import { Lexer } from '../Lexer/main';
 import { processValue } from './Utils/Values';
+import { parseReturn } from './Statements/Returns';
 
 export class Parser {
     constructor(private tokens: Token[]) {}
@@ -41,7 +42,8 @@ export class Parser {
                     break;
                 case "VAR":
                     consume(this.tokens, "VAR");
-                    parseVar(this.tokens);
+                    const _var = parseVar(this.tokens);
+                    if(Array.isArray(_var) && _var.length > 0) nodes = nodes.concat(_var);
                     break;
                 case "MIENTRAS":
                     consume(this.tokens, "MIENTRAS");
@@ -60,6 +62,12 @@ export class Parser {
                 case "FUNCION":
                     consume(this.tokens, "FUNCION");
                     nodes.push(parseFunction(this.tokens));
+                    break;
+                case "DEVOLVER":
+                    consume(this.tokens, "DEVOLVER");
+                    const parsed: any = parseReturn(this.tokens);
+                    // return parsed? parsed : [];
+                    nodes.push(parsed);
                     break;
 
                 case "EXPRESION":

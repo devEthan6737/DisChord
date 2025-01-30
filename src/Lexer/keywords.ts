@@ -11,6 +11,7 @@ export = [
     "CONSOLA",
     "TIPO",
     "FUNCION",
+    "DEVOLVER",
 
     "MAS",
     "MENOS",

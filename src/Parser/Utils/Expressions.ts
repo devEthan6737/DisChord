@@ -2,14 +2,32 @@
  * Módulo de utilidades para el manejo de expresiones en el lenguaje
  */
 
+import { Lexer } from "../../Lexer/main";
+import { executeFunction } from "../Statements/Function";
 import { Token } from "../Types/types";
 import { consume } from "./Consume";
+import FunctionInstance from "./Functions";
+import StateInstance from "./State";
 import VarsInstance from "./Vars";
 
 export function parseExpression(tokens: Token[] | string): Token { // Cambiar el tipo de retorno a Token
     let expression: any = Array.isArray(tokens)? consume(tokens, "EXPRESION").value : tokens; 
     const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g; // Verificar si es una expresión que comienza con TIPO
-    const firstTokenMatch = tokenPattern.exec(expression.trim()); 
+    const firstTokenMatch = tokenPattern.exec(expression.trim());
+    const functionPattern = /^([a-zA-Z_]+)\s*<([^>]*)>$/;
+    const match = expression.match(functionPattern);
+
+    if (match && FunctionInstance.hasFunction(match[1])) { // Funciones anidadas en expresiones
+        const functionName = match[1];
+        let args = match[2].split(";").map((arg: any) => arg.trim()).join(' ');
+        StateInstance.setCurrent(StateInstance.current); // + 2 deleted
+        args = new Lexer(args).tokenize();
+
+        const evaluatedArgs = args.map((arg: any) => evaluateExpression(arg.value));
+        const executedFunction: any = executeFunction(functionName, evaluatedArgs);
+ 
+        return executedFunction;
+    }
 
     if (firstTokenMatch && firstTokenMatch[0] === 'TIPO') {
         expression = parseExpression(expression.slice(5)); // Eliminar el token TIPO
@@ -72,6 +90,7 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
         else if (operand === 'falso') return false;
         else if (!isNaN(operand as any)) return parseFloat(operand);
         else if(VarsInstance.hasVar(operand)) return VarsInstance.getVar(operand);
+    
         throw new Error(`Operando desconocido: ${operand}`);
     };
 
