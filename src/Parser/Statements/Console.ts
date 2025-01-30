@@ -8,7 +8,10 @@ export function parseConsole(tokens: Token[]): ASTNode {
     const value = processValue(valueToken); // Procesa el valor para obtener su tipo real
 
     if(valueToken.type === 'EXPRESION') {
-        const expression: Token = parseExpression(value);
+        let expression: Token = parseExpression(value);
+
+        if(Array.isArray(expression)) expression = expression[0];
+
         return {
             type: 'CONSOLA',
             value: expression.type === expression.value? expression.value : processValue(expression)
