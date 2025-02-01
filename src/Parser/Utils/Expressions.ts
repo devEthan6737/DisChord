@@ -90,7 +90,7 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
         else if (operand === 'falso') return false;
         else if (!isNaN(operand as any)) return parseFloat(operand);
         else if(VarsInstance.hasVar(operand)) return VarsInstance.getVar(operand);
-    
+
         throw new Error(`Operando desconocido: ${operand}`);
     };
 

@@ -16,6 +16,15 @@ class Vars {
     public hasVar(name: string): boolean {
         return this.vars[name] !== undefined;
     }
+
+    public getVars(): Record<string, any> {
+        return { ...this.vars };
+    }
+
+    public setVars(newVars: Record<string, any>) {
+        this.vars = { ...newVars };
+    }
+
 }
 
 const VarsInstance = new Vars();

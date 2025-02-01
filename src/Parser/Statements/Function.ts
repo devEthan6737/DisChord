@@ -31,16 +31,22 @@ export function executeFunction(name: string, args: string[]): ASTNode[] {
 
     if (params.length !== args.length) throw new Error(`La función "${name}" espera ${params.length} parámetros, pero recibió ${args.length}.`);
 
-    params.forEach((param: any, index: any) => {
-        VarsInstance.addVar(param, args[index]);
+    // Guardar estado ORIGINAL de las variables
+    const originalVars = VarsInstance.getVars(); // Guardar estado de las variables originales
+    const tempVars = { ...originalVars }; // Crear una copia de las variables originales
+
+    funcData.params.forEach((param: string, index: number) => { // Inyectar parámetros en la copia
+        tempVars[param] = args[index];
     });
 
-    StateInstance.setCurrent(0);
+    VarsInstance.setVars(tempVars); // Usar la copia como variables globales temporalmente
+    StateInstance.setCurrent(0); // Establecer a 0 el estado de la instancia.
 
     const parser = new Parser(block);
     const nodes: ASTNode[] = parser.parse();
 
-    StateInstance.setCurrent(startIndex);
+    VarsInstance.setVars(originalVars); // Restaurar variables originales.
+    StateInstance.setCurrent(startIndex); // Restaurar el estado de la instancia.
 
     return nodes;
 }
