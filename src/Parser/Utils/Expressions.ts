@@ -50,15 +50,22 @@ export function parseExpression(tokens: Token[] | string): Token { // Cambiar el
         switch (result) { // Retornar el tipo de dato correspondiente
             case true:
                 return {
-                    type: "EXPRESION",
+                    type: "BOOL",
                     value: 'verdadero',
                 };
             case false:
                 return {
-                    type: "EXPRESION",
+                    type: "BOOL",
                     value: 'falso',
                 };
             default:
+                if (Array.isArray(result)) { // <-- Nuevo caso para listas
+                    return {
+                        type: "LISTA",
+                        value: JSON.stringify(result) // Ej: "[1,2,3,4]"
+                    };
+                }
+
                 return {
                     type: typeof result === 'string' ? "TEXTO" : "NUMERO",
                     value: result.toString(),
@@ -81,7 +88,26 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
     }
 
     const parseOperand = (operand: string): any => { // Nuevo sistema de parsing con precedencia
-        if (operand.startsWith('<')) {
+        if (operand.startsWith('[')) { // Manejar listas
+            // Eliminar corchetes y dividir elementos
+            const items = operand.slice(1, -1).split(',');
+            
+            // Evaluar cada elemento individualmente
+            return items.map(item => {
+                const trimmed = item.trim();
+                
+                // Manejar valores especiales dentro de listas
+                if (trimmed === 'verdadero') return true;
+                if (trimmed === 'falso') return false;
+                if (!isNaN(trimmed as any)) return parseFloat(trimmed);
+                if (trimmed.startsWith('"')) return trimmed.slice(1, -1);
+                
+                // Manejar variables dentro de listas
+                if (VarsInstance.hasVar(trimmed)) return VarsInstance.getVar(trimmed);
+                
+                return trimmed;
+            });
+        } else if (operand.startsWith('<')) {
             return evaluateExpression(operand.slice(1, -1).trim());
         } else if (operand.startsWith('"')) {
             return operand.slice(1, -1);
