@@ -8,10 +8,11 @@ import { Token } from "../Types/types";
 import { consume } from "./Consume";
 import FunctionInstance from "./Functions";
 import StateInstance from "./State";
+import { processValue } from "./Values";
 import VarsInstance from "./Vars";
 
 export function parseExpression(tokens: Token[] | string): Token { // Cambiar el tipo de retorno a Token
-    let expression: any = Array.isArray(tokens)? consume(tokens, "EXPRESION").value : tokens; 
+    let expression: any = Array.isArray(tokens)? consume(tokens, "EXPRESION").value : tokens;
     const tokenPattern = /(\d+|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z]+|MAS|MENOS|POR|ENTRE|RESTO|EXP)/g; // Verificar si es una expresión que comienza con TIPO
     const firstTokenMatch = tokenPattern.exec(expression.trim());
     const functionPattern = /^([a-zA-Z_]+)\s*<([^>]*)>$/;
@@ -68,7 +69,7 @@ export function parseExpression(tokens: Token[] | string): Token { // Cambiar el
 
 const evaluateExpression = (expr: string): any => { // Evaluar la expresión
     const tokens: string[] = [];
-    const tokenPattern = /(\d+(\.\d+)?|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z_]+|MAYOR_IGUAL|MENOR_IGUAL|IGUAL_TIPADO|MAS|MENOS|POR|ENTRE|RESTO|EXP|MAYOR|MENOR|NO|IGUAL)/g; // Actualizar el regex para incluir nuevos operadores
+    const tokenPattern = /(\d+(\.\d+)?|\[.*?\]|"(?:\\"|[^"])*"|<[^>]+>|[a-zA-Z_]+|MAYOR_IGUAL|MENOR_IGUAL|IGUAL_TIPADO|MAS|MENOS|POR|ENTRE|RESTO|EXP|MAYOR|MENOR|NO|IGUAL)/g; // Actualizar el regex para incluir nuevos operadores
     let match; // Actualizar el while para incluir nuevos operadores
 
     while ((match = tokenPattern.exec(expr)) !== null) { // Actualizar el while para incluir nuevos operadores
@@ -89,7 +90,12 @@ const evaluateExpression = (expr: string): any => { // Evaluar la expresión
         else if (operand === 'verdadero') return true;
         else if (operand === 'falso') return false;
         else if (!isNaN(operand as any)) return parseFloat(operand);
-        else if(VarsInstance.hasVar(operand)) return VarsInstance.getVar(operand);
+        else if (VarsInstance.hasVar(operand)) return VarsInstance.getVar(operand);
+        else if (FunctionInstance.hasFunction(operand)) { // Funciones anidadas
+            const executedFunction: any = executeFunction(operand, [ processValue(parseExpression(tokens[index++])) ]);
+
+            return executedFunction;
+        }
 
         throw new Error(`Operando desconocido: ${operand}`);
     };

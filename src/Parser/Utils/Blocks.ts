@@ -50,7 +50,7 @@ export function parseBlock(tokens: Token[]): ASTNode[] { // Extraer tokens de un
 }
 
 export function parseBlockWithoutExecute(tokens: Token[]): ASTNode[] { // Sin ejecutar el bloque
-    let startIndex = 2; // Guardar posición inicial del bloque
+    let startIndex = StateInstance.current; // Guardar posición inicial del bloque
     let depth = 0; // Profundidad de anidamiento
     const blockTokens: Token[] = []; // Tokens del bloque
     
