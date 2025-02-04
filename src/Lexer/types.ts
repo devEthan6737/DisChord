@@ -23,3 +23,13 @@ export const operators = {
     EXP: "EXP",
     RESTO: "RESTO"
 };
+
+export const comparation_operators = {
+    MAYOR: "MAYOR",
+    MENOR: "MENOR",
+    MAYOR_IGUAL: "MAYOR_IGUAL",
+    MENOR_IGUAL: "MENOR_IGUAL",
+    NO: "NO",
+    IGUAL_TIPADO: "IGUAL_TIPADO",
+    IGUAL: "IGUAL"
+}

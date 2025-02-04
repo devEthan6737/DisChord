@@ -1,5 +1,5 @@
 import { ASTNode, Token } from "src/Types/Token";
-import { operators, statements, types } from "../Lexer/types"
+import { comparation_operators, operators, statements, types } from "../Lexer/types"
 
 export class Parser {
     public nodes: ASTNode[] = [];
@@ -64,6 +64,14 @@ export class Parser {
                 case operators.ENTRE:
                 case operators.EXP:
                 case operators.RESTO:
+                
+                case comparation_operators.IGUAL:
+                case comparation_operators.IGUAL_TIPADO:
+                case comparation_operators.MAYOR:
+                case comparation_operators.MAYOR_IGUAL:
+                case comparation_operators.MENOR:
+                case comparation_operators.MENOR_IGUAL:
+                case comparation_operators.NO:
                     this.parseOperator(this.peek().type);
                     break;
 

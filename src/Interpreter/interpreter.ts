@@ -17,13 +17,16 @@ export function executeAST(ast: any): any {
         } else if (peek.type === 'TIPO') {
             if (peek.value === 'EXPRESION') {
                 const _ast = executeAST(peek.children);
-                return typeof _ast === 'object'? _ast.value : _ast;
+                return typeof _ast === 'object'? _ast.type : _ast;
             } else return peek.type;
 
-        } else if (peek.type === 'MAS' || peek.type === 'MENOS' || peek.type === 'POR' || peek.type === 'ENTRE' || peek.type === 'EXP' || peek.type === 'RESTO' ) {
+        } else if (peek.type === 'MAS' || peek.type === 'MENOS' || peek.type === 'POR' || peek.type === 'ENTRE' || peek.type === 'EXP' || peek.type === 'RESTO' ||
+                   peek.type === 'IGUAL' ||  peek.type === 'IGUAL_TIPADO' || peek.type === 'MAYOR' ||  peek.type === 'MAYOR_IGUAL' ||  peek.type === 'MENOR' || peek.type === 'MENOR_IGUAL' ||
+                   peek.type === 'NO') {
             let left = executeAST(Array.isArray(peek.left)? peek.left : [ peek.left ]);
             let right = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
             let value;
+            let leftType = left.type;
 
             if(left.value) left = left.value;
             if(right.value) right = right.value;
@@ -48,12 +51,42 @@ export function executeAST(ast: any): any {
                 case 'RESTO':
                     value = left % right;
                     break;
+                case 'IGUAL':
+                    leftType = 'BOOL';
+                    value = left == right? 'verdadero' : 'falso'
+                    break;
+                case 'IGUAL_TIPADO':
+                    leftType = 'BOOL';
+                    value = left === right? 'verdadero' : 'falso'
+                    break;
+                case 'MAYOR':
+                    leftType = 'BOOL';
+                    value = left > right? 'verdadero' : 'falso'
+                    break;
+                case 'MAYOR_IGUAL':
+                    leftType = 'BOOL';
+                    value = left >= right? 'verdadero' : 'falso'
+                    break;
+                case 'MENOR':
+                    leftType = 'BOOL';
+                    value = left < right? 'verdadero' : 'falso'
+                    break;
+                case 'MENOR_IGUAL':
+                    leftType = 'BOOL';
+                    value = left <= right? 'verdadero' : 'falso'
+                    break;
                 default:
                     throw new Error(`Operador '${peek.type}' no soportado. Valores: ${left}, ${right}`);
             }
 
+            if(peek.type === 'NO') {
+                leftType = 'BOOL';
+                if (value === 'verdadero') value = 'falso';
+                else if (value === 'falso') value = 'verdadero';
+            }
+
             return {
-                type: left.type,
+                type: leftType,
                 value
             };
 
