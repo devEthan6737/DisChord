@@ -57,6 +57,35 @@ export class Parser {
                     
                     this.nodes.push(expression);
                     break;
+                case statements.SI:
+                    this.consume(statements.SI);
+                    const conditionExpression: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                    let block: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                    let elseIf: any = [];
+                    let elseBlock: any;
+
+                    while (this.peek().type === statements.ADEMAS) {
+                        this.consume(statements.ADEMAS);
+                        const elseIfCondition = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                        const elseIfBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                        elseIf.push({ value: elseIfCondition, children: elseIfBlock });
+                    }
+
+                    if (this.peek().type === statements.SINO) {
+                        this.consume(statements.SINO);
+                        elseBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                    }
+
+                    this.nodes.push(
+                        {
+                            type: "SI",
+                            value: conditionExpression,
+                            children: block,
+                            elseif: elseIf,
+                            else: elseBlock
+                        }
+                    );
+                    break;
 
                 case operators.MAS:
                 case operators.MENOS:

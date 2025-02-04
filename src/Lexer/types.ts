@@ -12,7 +12,12 @@ export const statements = {
     CONSOLA: 'CONSOLA',
     TIPO: 'TIPO',
     L_EXPRESSION: 'L_EXPRESSION',
-    R_EXPRESSION: 'R_EXPRESSION'
+    R_EXPRESSION: 'R_EXPRESSION',
+    SI: 'SI',
+    SINO: 'SINO',
+    ADEMAS: 'ADEMAS',
+    L_BRACE: 'L_BRACE',
+    R_BRACE: 'R_BRACE'
 }
 
 export const operators = {

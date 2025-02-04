@@ -100,6 +100,31 @@ export function executeAST(ast: any): any {
                 value
             };
 
+        } else if (peek.type === 'SI') {
+            let condition = executeAST(peek.value);
+
+            if (condition.value === 'verdadero') {
+                executeAST(peek.children);
+            } else {
+                let executed = false;
+        
+                if (peek.elseif) {
+                    for (const elseif of peek.elseif) {
+                        const elseIfCondition = executeAST(elseif.value);
+                        if (elseIfCondition.value === 'verdadero') {
+                            executeAST(elseif.children);
+                            executed = true;
+                            break;
+                        }
+                    }
+                }
+        
+                if (!executed && peek.else) {
+                    executeAST(peek.else);
+                }
+        
+            }
+
         } else if (peek.type === 'NUMERO') {
             return {
                 type: "NUMERO",

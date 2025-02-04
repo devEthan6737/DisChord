@@ -9,4 +9,6 @@ export type ASTNode = {
     children?: ASTNode[];
     left?: object;
     right?: object;
+    else?: string;
+    elseif?: string
 };
