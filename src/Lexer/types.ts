@@ -31,5 +31,7 @@ export const comparation_operators = {
     MENOR_IGUAL: "MENOR_IGUAL",
     NO: "NO",
     IGUAL_TIPADO: "IGUAL_TIPADO",
-    IGUAL: "IGUAL"
+    IGUAL: "IGUAL",
+    Y: "Y",
+    O: "O"
 }

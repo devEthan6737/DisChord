@@ -11,5 +11,11 @@ export = {
     "*": "POR",
     "/": "ENTRE",
     "**": "EXP",
-    "%": "RESTO"
+    "%": "RESTO",
+    "?": "MAYOR",
+    "¿": "MENOR",
+    ">=": "MAYOR_IGUAL",
+    "<=": "MENOR_IGUAL",
+    "!": "NO",
+    "==": "IGUAL_TIPADO"
 };

@@ -29,4 +29,6 @@ export = [
     "NO",
     "IGUAL_TIPADO",
     "IGUAL",
+    "Y",
+    "O"
 ];

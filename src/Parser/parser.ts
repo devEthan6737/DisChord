@@ -72,6 +72,8 @@ export class Parser {
                 case comparation_operators.MENOR:
                 case comparation_operators.MENOR_IGUAL:
                 case comparation_operators.NO:
+                case comparation_operators.O:
+                case comparation_operators.Y:
                     this.parseOperator(this.peek().type);
                     break;
 

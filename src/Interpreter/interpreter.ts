@@ -22,7 +22,7 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'MAS' || peek.type === 'MENOS' || peek.type === 'POR' || peek.type === 'ENTRE' || peek.type === 'EXP' || peek.type === 'RESTO' ||
                    peek.type === 'IGUAL' ||  peek.type === 'IGUAL_TIPADO' || peek.type === 'MAYOR' ||  peek.type === 'MAYOR_IGUAL' ||  peek.type === 'MENOR' || peek.type === 'MENOR_IGUAL' ||
-                   peek.type === 'NO') {
+                   peek.type === 'NO' || peek.type === 'Y' || peek.type === 'O') {
             let left = executeAST(Array.isArray(peek.left)? peek.left : [ peek.left ]);
             let right = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
             let value;
@@ -30,6 +30,8 @@ export function executeAST(ast: any): any {
 
             if(left.value) left = left.value;
             if(right.value) right = right.value;
+            if(left === 'verdadero') left = true;
+            if(right === 'falso') right = false; 
 
             switch (peek.type) {
                 case 'MAS':
@@ -74,6 +76,14 @@ export function executeAST(ast: any): any {
                 case 'MENOR_IGUAL':
                     leftType = 'BOOL';
                     value = left <= right? 'verdadero' : 'falso'
+                    break;
+                case 'Y':
+                    leftType = 'BOOL';
+                    value = left && right? 'verdadero' : 'falso'
+                    break;
+                case 'O':
+                    leftType = 'BOOL';
+                    value = left || right? 'verdadero' : 'falso'
                     break;
                 default:
                     throw new Error(`Operador '${peek.type}' no soportado. Valores: ${left}, ${right}`);
