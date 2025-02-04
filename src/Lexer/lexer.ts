@@ -1,4 +1,4 @@
-import { Token } from "src/Parser/Types/types";
+import { Token } from "src/Types/Token";
 
 export class Lexer {
     private keywords = require('./keywords');
@@ -18,26 +18,31 @@ export class Lexer {
                 continue;
             }
 
-            if (char === "/") { // Comentarios
-                char = this.input[++current]; // Avanza al siguiente carácter
-                if (char === "/") {
-                    while (char !== "\n" && current < this.input.length) {
-                        char = this.input[++current];
+            if (char === "/") {  // Comentarios
+                const nextChar = this.input[current + 1]; 
+            
+                if (nextChar === "/") { // Comentario de línea
+                    current += 2; // Consume "//"
+                    while (current < this.input.length && this.input[current] !== "\n") {
+                        current++;
                     }
                     continue;
-                } else if (char === "*") {
-                    char = this.input[++current];
+                } else if (nextChar === "*") { // Comentario de bloque
+                    current += 2; // Consume "/*"
                     while (current < this.input.length) {
-                        if (char === "*" && this.input[current + 1] === "/") {
-                            current += 2;
+                        if (this.input[current] === "*" && this.input[current + 1] === "/") {
+                            current += 2; // Consume "*/"
                             break;
                         }
-                        char = this.input[++current];
+                        current++;
                     }
                     continue;
+                } else {
+                    // No es un comentario por lo que vamos a tratar "/" como operador "ENTRE"
+                    tokens.push({ type: this.symbols["/"], value: this.symbols["/"] });
+                    current++;
+                    continue;
                 }
-
-                throw new Error(`Token inesperado: ${char}`);
             }
 
             if (char === '"') { // Strings
@@ -103,29 +108,6 @@ export class Lexer {
                 continue;
             }
 
-            if (char === "<") { 
-                let expression = "";
-                let depth = 1;
-                char = this.input[++current];
-                
-                while (depth > 0 && current < this.input.length) {
-                    if (char === "<") depth++;
-                    if (char === ">") depth--;
-                    if (depth > 0) expression += char;
-                    char = this.input[++current];
-                }
-
-                if (depth !== 0) {
-                    throw new Error("Expresión no cerrada con '>'");
-                }
-
-                tokens.push({ 
-                    type: "EXPRESION", 
-                    value: expression.trim() // Ej: "edad MAYOR_IGUAL 18"
-                });
-                continue;
-            }
-
             if (/[a-zA-Z]/.test(char)) { // Keywords, identificadores, booleanos, undefined, null
                 let value = "";
                 while (/[a-zA-Z0-9_]/.test(char) && current < this.input.length) {
@@ -141,7 +123,7 @@ export class Lexer {
                     tokens.push({ type: "NULO", value });
                 } else if (["verdadero", "falso" ].includes(value)) {
                     tokens.push({ type: "BOOL", value });
-                } else if ([ "MAYOR", "MENOR", "MAYOR_IGUAL", "MENOR_IGUAL", "NO", "IGUAL_TIPADO", "IGUAL" ].includes(value)) {
+                } else if ([ "MAYOR", "MENOR", "MAYOR_IGUAL", "MENOR_IGUAL", "NO", "IGUAL_TIPADO", "IGUAL", "Y", "O" ].includes(value)) {
                     tokens.push({ type: "COMPARADOR", value });
                 } else {
                     tokens.push({ type: value, value });
@@ -149,7 +131,16 @@ export class Lexer {
                 continue;
             }
 
-            if (this.symbols[char]) { // Símbolos
+            if (current < this.input.length - 1) {
+                const twoChar = char + this.input[current + 1];
+                if (this.symbols[twoChar]) {
+                    tokens.push({ type: this.symbols[twoChar], value: twoChar });
+                    current += 2;
+                    continue;
+                }
+            }
+
+            if (this.symbols[char]) {
                 tokens.push({ type: this.symbols[char], value: char });
                 current++;
                 continue;

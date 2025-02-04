@@ -1,16 +1,3 @@
-import { Token } from "../Types/types";
-
-export function processValue(token: Token): any {
-    switch (token.type) {
-        case "NUMERO":
-            return parseFloat(token.value);
-        case "LISTA":
-            return parseArray(token.value);
-        default:
-            return token.value;
-    }
-}
-
 export function parseArray(arrayValue: string): any[] {
     const items: any[] = [];
     let buffer = "";
