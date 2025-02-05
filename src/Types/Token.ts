@@ -10,5 +10,6 @@ export type ASTNode = {
     left?: object;
     right?: object;
     else?: string;
-    elseif?: string
+    elseif?: string;
+    content?: string;
 };

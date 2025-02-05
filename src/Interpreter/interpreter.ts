@@ -1,6 +1,7 @@
 import { parseArray } from "../Utils/arrays";
 
 export function executeAST(ast: any): any {
+    const varsInstance: any = {};
     // console.log(ast);
     // console.log(JSON.stringify(ast, null, 2));
 
@@ -134,6 +135,10 @@ export function executeAST(ast: any): any {
                 }
         
             }
+
+        } else if (peek.type === 'VAR') {
+            const value = executeAST(Array.isArray(peek.content)? peek.content : [ peek.content ]);
+            varsInstance[peek.value] = value.value;
 
         } else if (peek.type === 'NUMERO') {
             return {

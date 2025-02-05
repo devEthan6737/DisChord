@@ -89,6 +89,20 @@ export class Parser {
                         }
                     );
                     break;
+                case statements.VAR:
+                    this.consume(statements.VAR);
+                    const varName: any = this.consume(this.peek().type);
+                    this.consume(comparation_operators.IGUAL);
+                    const content: any = this.consume(this.peek().type);
+
+                    this.nodes.push(
+                        {
+                            type: "VAR",
+                            value: varName.value,
+                            content: content
+                        }
+                    );
+                    break;
 
                 case operators.MAS:
                 case operators.MENOS:
