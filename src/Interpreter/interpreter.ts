@@ -114,10 +114,9 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'SI') {
             let condition = executeAST(peek.value);
-            let result: any;
 
             if (condition.value === 'verdadero') {
-                result = executeAST(peek.children);
+                executeAST(peek.children);
             } else {
                 let executed = false;
 
@@ -125,7 +124,7 @@ export function executeAST(ast: any): any {
                     for (const elseif of peek.elseif) {
                         const elseIfCondition = executeAST(elseif.value);
                         if (elseIfCondition.value === 'verdadero') {
-                            result = executeAST(elseif.children);
+                            executeAST(elseif.children);
                             executed = true;
                             break;
                         }
@@ -133,29 +132,20 @@ export function executeAST(ast: any): any {
                 }
 
                 if (!executed && peek.else) {
-                    result = executeAST(peek.else);
+                    executeAST(peek.else);
                 }
 
             }
-
-            return result;
 
         } else if (peek.type === 'VAR') {
             const value = executeAST(Array.isArray(peek.content)? peek.content : [ peek.content ]);
             varsInstance[peek.value] = value.value;
 
         } else if (peek.type === 'MIENTRAS') {
-            console.log(peek)
-            while (true) {
-                const condition = executeAST(peek.value);
-                if (condition.value !== 'verdadero') break;
-
-                const result = executeAST(peek.children);
-
-                if (result?.type === 'PARAR') break;
-                if (result?.type === 'SALTAR') continue;
+            while (executeAST(peek.value).value === 'verdadero') {
+                executeAST(peek.children);
             }
-        
+
         } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {
             return {
                 type: peek.type
