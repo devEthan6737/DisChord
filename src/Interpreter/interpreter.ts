@@ -114,37 +114,57 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'SI') {
             let condition = executeAST(peek.value);
+            let result: any;
 
             if (condition.value === 'verdadero') {
-                executeAST(peek.children);
+                result = executeAST(peek.children);
             } else {
                 let executed = false;
-        
+
                 if (peek.elseif) {
                     for (const elseif of peek.elseif) {
                         const elseIfCondition = executeAST(elseif.value);
                         if (elseIfCondition.value === 'verdadero') {
-                            executeAST(elseif.children);
+                            result = executeAST(elseif.children);
                             executed = true;
                             break;
                         }
                     }
                 }
-        
+
                 if (!executed && peek.else) {
-                    executeAST(peek.else);
+                    result = executeAST(peek.else);
                 }
-        
+
             }
+
+            return result;
 
         } else if (peek.type === 'VAR') {
             const value = executeAST(Array.isArray(peek.content)? peek.content : [ peek.content ]);
             varsInstance[peek.value] = value.value;
 
+        } else if (peek.type === 'MIENTRAS') {
+            console.log(peek)
+            while (true) {
+                const condition = executeAST(peek.value);
+                if (condition.value !== 'verdadero') break;
+
+                const result = executeAST(peek.children);
+
+                if (result?.type === 'PARAR') break;
+                if (result?.type === 'SALTAR') continue;
+            }
+        
+        } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {
+            return {
+                type: peek.type
+            }
+
         } else if (peek.type === 'NUMERO') {
             return {
                 type: "NUMERO",
-                value: parseFloat(peek.value)
+                value: peek.value == '0'? 0 : parseFloat(peek.value)
             };
         
         } else if (peek.type === 'BIGINT') {
@@ -195,7 +215,7 @@ export function executeAST(ast: any): any {
                 value: peek.value
             };
 
-        } else if (varsInstance[peek.type]) {
+        } else if (varsInstance[peek.type] || varsInstance[peek.type] == 0) {
             return varsInstance[peek.type];
 
         } else if (peek.children) {

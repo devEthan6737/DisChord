@@ -18,7 +18,8 @@ export const statements = {
     ADEMAS: 'ADEMAS',
     L_BRACE: 'L_BRACE',
     R_BRACE: 'R_BRACE',
-    VAR: 'VAR'
+    VAR: 'VAR',
+    MIENTRAS: 'MIENTRAS'
 }
 
 export const operators = {

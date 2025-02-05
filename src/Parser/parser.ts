@@ -109,6 +109,20 @@ export class Parser {
                         }
                     );
                     break;
+                case statements.MIENTRAS:
+                    this.consume(statements.MIENTRAS);
+                    const condition: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                    const body: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
+
+                    this.nodes.push(
+                        {
+                            type: "MIENTRAS",
+                            value: condition,
+                            children: body
+                        }
+                    );
+
+                    break;
 
                 case operators.MAS:
                 case operators.MENOS:
