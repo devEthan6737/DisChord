@@ -22,16 +22,18 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'MAS' || peek.type === 'MENOS' || peek.type === 'POR' || peek.type === 'ENTRE' || peek.type === 'EXP' || peek.type === 'RESTO' ||
                    peek.type === 'IGUAL' ||  peek.type === 'IGUAL_TIPADO' || peek.type === 'MAYOR' ||  peek.type === 'MAYOR_IGUAL' ||  peek.type === 'MENOR' || peek.type === 'MENOR_IGUAL' ||
-                   peek.type === 'NO' || peek.type === 'Y' || peek.type === 'O') {
+                   peek.type === 'Y' || peek.type === 'O') {
             let left = executeAST(Array.isArray(peek.left)? peek.left : [ peek.left ]);
             let right = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
             let value;
             let leftType = left.type;
 
-            if(left.value) left = left.value;
-            if(right.value) right = right.value;
-            if(left === 'verdadero') left = true;
-            if(right === 'falso') right = false; 
+            if (left.value) left = left.value;
+            if (right.value) right = right.value;
+            if (left === 'verdadero') left = true;
+            else if (left === 'falso') left = false;
+            if (right === 'verdadero') right = true;
+            if (right === 'falso') right = false; 
 
             switch (peek.type) {
                 case 'MAS':
@@ -89,15 +91,23 @@ export function executeAST(ast: any): any {
                     throw new Error(`Operador '${peek.type}' no soportado. Valores: ${left}, ${right}`);
             }
 
-            if(peek.type === 'NO') {
-                leftType = 'BOOL';
-                if (value === 'verdadero') value = 'falso';
-                else if (value === 'falso') value = 'verdadero';
-            }
-
             return {
                 type: leftType,
                 value
+            };
+
+        } else if (peek.type === 'NO') {
+            const operand = executeAST(Array.isArray(peek.value) ? peek.value : [ peek.value ]);
+            let value = operand.value;
+
+            if (value === 'verdadero') value = true;
+            else if (value === 'falso') value = false;
+
+            const result = !value;
+
+            return {
+                type: "BOOL",
+                value: result ? 'verdadero' : 'falso'
             };
 
         } else if (peek.type === 'SI') {

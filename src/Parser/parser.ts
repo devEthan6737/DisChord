@@ -64,16 +64,19 @@ export class Parser {
                     let elseIf: any = [];
                     let elseBlock: any;
 
-                    while (this.peek().type === statements.ADEMAS) {
-                        this.consume(statements.ADEMAS);
-                        const elseIfCondition = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
-                        const elseIfBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
-                        elseIf.push({ value: elseIfCondition, children: elseIfBlock });
-                    }
-
-                    if (this.peek().type === statements.SINO) {
-                        this.consume(statements.SINO);
-                        elseBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                    if(this.current < this.tokens.length) {
+                        while (this.peek().type === statements.ADEMAS) {
+                            this.consume(statements.ADEMAS);
+                            this.consume(statements.SI);
+                            const elseIfCondition = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                            const elseIfBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                            elseIf.push({ value: elseIfCondition, children: elseIfBlock });
+                        }
+                        
+                        if (this.peek().type === statements.SINO) {
+                            this.consume(statements.SINO);
+                            elseBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                        }
                     }
 
                     this.nodes.push(
@@ -93,7 +96,7 @@ export class Parser {
                 case operators.ENTRE:
                 case operators.EXP:
                 case operators.RESTO:
-                
+
                 case comparation_operators.IGUAL:
                 case comparation_operators.IGUAL_TIPADO:
                 case comparation_operators.MAYOR:
@@ -162,6 +165,24 @@ export class Parser {
     }
 
     private parseOperator(operator: string) {
+        if (operator === 'NO') { 
+            this.consume('NO');
+            let value: any;
+    
+            if (this.peek().type === 'L_EXPRESSION') {
+                value = this.blocks('L_EXPRESSION', 'R_EXPRESSION');
+            } else {
+                value = this.consume(this.peek().type);
+            }
+    
+            this.nodes.push({
+                type: 'NO',
+                value: value
+            });
+
+            return;
+        }
+
         // this.curret--;
         const left = this.nodes[this.nodes.length - 1];
         this.nodes.shift();
