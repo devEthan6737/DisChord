@@ -93,8 +93,14 @@ export class Parser {
                     this.consume(statements.VAR);
                     const varName: any = this.consume(this.peek().type);
                     this.consume(comparation_operators.IGUAL);
-                    const content: any = this.consume(this.peek().type);
+                    let content: any;
 
+                    if (this.peek().type === statements.L_EXPRESSION) {
+                        content = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                    } else {
+                        content = this.consume(this.peek().type);
+                    }
+                        
                     this.nodes.push(
                         {
                             type: "VAR",
