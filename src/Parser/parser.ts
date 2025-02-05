@@ -72,7 +72,7 @@ export class Parser {
                             const elseIfBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
                             elseIf.push({ value: elseIfCondition, children: elseIfBlock });
                         }
-                        
+
                         if (this.peek().type === statements.SINO) {
                             this.consume(statements.SINO);
                             elseBlock = this.blocks(statements.L_BRACE, statements.R_BRACE);
@@ -100,7 +100,7 @@ export class Parser {
                     } else {
                         content = this.consume(this.peek().type);
                     }
-                        
+
                     this.nodes.push(
                         {
                             type: "VAR",
@@ -140,7 +140,8 @@ export class Parser {
                     break;
 
                 default:
-                    throw new Error(`${this.peek().type} no es una palabra reservada o no pertenece a este bloque.`);
+                    this.nodes.push(this.consume(this.peek().type));
+                    // throw new Error(`${this.peek().type} no es una palabra reservada o no pertenece a este bloque.`);
             }
         }
 
@@ -185,7 +186,7 @@ export class Parser {
     }
 
     private parseOperator(operator: string) {
-        if (operator === 'NO') { 
+        if (operator === 'NO') {
             this.consume('NO');
             let value: any;
     

@@ -1,7 +1,8 @@
 import { parseArray } from "../Utils/arrays";
 
+const varsInstance: any = {};
+
 export function executeAST(ast: any): any {
-    const varsInstance: any = {};
     // console.log(ast);
     // console.log(JSON.stringify(ast, null, 2));
 
@@ -194,9 +195,13 @@ export function executeAST(ast: any): any {
                 value: peek.value
             };
 
+        } else if (varsInstance[peek.type]) {
+            return varsInstance[peek.type];
+
         } else if (peek.children) {
             executeAST(peek.children);
-        }
+
+        }else throw new Error(`${peek.type} no es una palabra reservada o no pertenece a este bloque.`);
 
         current++;
     }
