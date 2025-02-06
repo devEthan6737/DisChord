@@ -143,6 +143,7 @@ export class Parser {
                     this.parseOperator(this.peek().type);
                     break;
 
+                case statements.DEVOLVER:
                 case "NUMERO":
                 case "BIGINT":
                 case "BOOL":

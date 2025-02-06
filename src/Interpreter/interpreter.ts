@@ -146,6 +146,12 @@ export function executeAST(ast: any): any {
                 executeAST(peek.children);
             }
 
+        } else if (peek.type === 'DEVOLVER') {
+            if (peek.value === 'EXPRESION') {
+                const _ast = executeAST(peek.children);
+                return typeof _ast === 'object'? _ast.value : _ast;
+            } else return peek.value;
+
         } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {
             return {
                 type: peek.type

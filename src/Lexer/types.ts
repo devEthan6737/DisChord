@@ -19,7 +19,8 @@ export const statements = {
     L_BRACE: 'L_BRACE',
     R_BRACE: 'R_BRACE',
     VAR: 'VAR',
-    MIENTRAS: 'MIENTRAS'
+    MIENTRAS: 'MIENTRAS',
+    DEVOLVER: 'DEVOLVER'
 }
 
 export const operators = {
