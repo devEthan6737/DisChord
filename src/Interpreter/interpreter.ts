@@ -1,6 +1,7 @@
 import { parseArray } from "../Utils/arrays";
 
 const varsInstance: any = {};
+const functionsInstance: any = [];
 
 export function executeAST(ast: any): any {
     // console.log(ast);
@@ -172,6 +173,12 @@ export function executeAST(ast: any): any {
                 return typeof _ast === 'object'? _ast.value : _ast;
             } else return peek.value;
 
+        } else if (peek.type === 'FUNCION') {
+            functionsInstance[peek.value] = {
+                params: peek.children[0],
+                body: peek.children[1]
+            }
+
         } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {
             return {
                 type: peek.type
@@ -182,37 +189,37 @@ export function executeAST(ast: any): any {
                 type: "NUMERO",
                 value: peek.value == '0'? 0 : parseFloat(peek.value)
             };
-        
+
         } else if (peek.type === 'BIGINT') {
             return {
                 type: "BIGINT",
                 value: parseFloat(peek.value)
             };
-        
+
         } else if (peek.type === 'BOOL') {
             return {
                 type: "BOOL",
                 value: peek.value
             };
-        
+
         } else if (peek.type === 'TEXTO') {
             return {
                 type: "TEXTO",
                 value: peek.value
             };
-        
+
         } else if (peek.type === 'ESPACIO') {
             return {
                 type: "TEXTO",
                 value: ' '
             };
-        
+
         } else if (peek.type === 'INTRO') {
             return {
                 type: "TEXTO",
                 value: '\n'
             };
-        
+
         } else if (peek.type === 'LISTA') {
             return {
                 type: "LISTA",
@@ -224,7 +231,7 @@ export function executeAST(ast: any): any {
                 type: "NULO",
                 value: peek.value
             };
-        
+
         } else if (peek.type === 'INDEFINIDO') {
             return {
                 type: "INDEFINIDO",
@@ -233,11 +240,25 @@ export function executeAST(ast: any): any {
 
         } else if (varsInstance[peek.type] || varsInstance[peek.type] == 0) {
             return varsInstance[peek.type];
+        
+        } else if (functionsInstance[peek.type]) {
+            const varsInstanceCopy = varsInstance;
+            const func = functionsInstance[peek.type];
+
+            if(func.params.length > 0) {
+                for (let i = 0; i < func.params.length; i++) {
+                    varsInstanceCopy[func.params[i].value] = peek.value[i].value;
+                }
+            }
+
+            executeAST(func.body);
 
         } else if (peek.children) {
             executeAST(peek.children);
 
-        }else throw new Error(`${peek.type} no es una palabra reservada o no pertenece a este bloque.`);
+        } else {
+            throw new Error(`${peek.type} no es una palabra reservada o no pertenece a este bloque.`);
+        }
 
         current++;
     }

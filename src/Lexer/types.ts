@@ -22,7 +22,8 @@ export const statements = {
     MIENTRAS: 'MIENTRAS',
     DEVOLVER: 'DEVOLVER',
     CADA: 'CADA',
-    SEPARADOR: 'SEPARADOR'
+    SEPARADOR: 'SEPARADOR',
+    FUNCION: 'FUNCION'
 }
 
 export const operators = {

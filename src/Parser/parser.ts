@@ -3,6 +3,7 @@ import { comparation_operators, operators, statements, types } from "../Lexer/ty
 
 export class Parser {
     public nodes: ASTNode[] = [];
+    private functions: string[] = [];
 
     constructor(private tokens: Token[], private current: number = 0) {}
 
@@ -128,6 +129,23 @@ export class Parser {
                     this.consume(statements.SEPARADOR);
                     break;
 
+                case statements.FUNCION:
+                    this.consume(statements.FUNCION);
+                    const functionName: any = this.consume(this.peek().type);
+                    const params: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                    const funcBody: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
+
+                    this.functions.push(functionName);
+
+                    this.nodes.push(
+                        {
+                            type: statements.FUNCION,
+                            value: functionName.type,
+                            children: [ params, funcBody ]
+                        }
+                    );
+                    break;
+
                 case operators.MAS:
                 case operators.MENOS:
                 case operators.POR:
@@ -159,8 +177,18 @@ export class Parser {
                     break;
 
                 default:
-                    this.nodes.push(this.consume(this.peek().type));
-                    // throw new Error(`${this.peek().type} no es una palabra reservada o no pertenece a este bloque.`);
+                    // Consumir funciones, en caso contrario simplemente se consume y se agrega el nodo.
+                    if (this.peek().type && this.current + 1 < this.tokens.length && this.tokens[this.current + 1].type === statements.L_EXPRESSION) {
+                        const functionName: any = this.consume(this.peek().type);
+
+                        if (!this.functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`); // Verificar que la función se declaró
+                        const params: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+
+                        this.nodes.push({
+                            type: functionName.value,
+                            value: params?.length > 0 ? params : []
+                        });
+                    } else this.nodes.push(this.consume(this.peek().type)); // Consumir token normal
             }
         }
 
