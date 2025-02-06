@@ -12,6 +12,7 @@ export = [
     "TIPO",
     "FUNCION",
     "DEVOLVER",
+    "SEPARADOR",
 
     "MAS",
     "MENOS",

@@ -110,18 +110,22 @@ export class Parser {
                     );
                     break;
                 case statements.MIENTRAS:
-                    this.consume(statements.MIENTRAS);
+                case statements.CADA:
+                    const statementType = this.consume(this.peek().type);
                     const condition: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
                     const body: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
 
                     this.nodes.push(
                         {
-                            type: "MIENTRAS",
+                            type: statementType.type,
                             value: condition,
                             children: body
                         }
                     );
 
+                    break;
+                case statements.SEPARADOR:
+                    this.consume(statements.SEPARADOR);
                     break;
 
                 case operators.MAS:

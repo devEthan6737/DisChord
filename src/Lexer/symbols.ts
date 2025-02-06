@@ -17,5 +17,6 @@ export = {
     ">=": "MAYOR_IGUAL",
     "<=": "MENOR_IGUAL",
     "!": "NO",
-    "==": "IGUAL_TIPADO"
+    "==": "IGUAL_TIPADO",
+    ";": "SEPARACION"
 };

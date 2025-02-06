@@ -146,11 +146,24 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'MIENTRAS') {
             while (executeAST(peek.value).value === 'verdadero') {
-                let block = executeAST(peek.children);
+                const block = executeAST(peek.children);
 
                 if (block?.type === 'PARAR') break;
                 if (block?.type === 'SALTAR') continue;
                 if (block?.type === 'DEVOLVER') return block;
+            }
+
+        } else if (peek.type === 'CADA') {
+            const condition = peek.value[1];
+
+            while (executeAST([ condition ]).value === 'verdadero') {
+                const block = executeAST(peek.children);
+                
+                if (block?.type === 'PARAR') break;
+                if (block?.type === 'SALTAR') continue;
+                if (block?.type === 'DEVOLVER') return block;
+
+                varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
             }
 
         } else if (peek.type === 'DEVOLVER') {
