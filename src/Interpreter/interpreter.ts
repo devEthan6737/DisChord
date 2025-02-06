@@ -114,9 +114,10 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'SI') {
             let condition = executeAST(peek.value);
+            let result: any;
 
             if (condition.value === 'verdadero') {
-                executeAST(peek.children);
+                result = executeAST(peek.children);
             } else {
                 let executed = false;
 
@@ -124,7 +125,7 @@ export function executeAST(ast: any): any {
                     for (const elseif of peek.elseif) {
                         const elseIfCondition = executeAST(elseif.value);
                         if (elseIfCondition.value === 'verdadero') {
-                            executeAST(elseif.children);
+                            result = executeAST(elseif.children);
                             executed = true;
                             break;
                         }
@@ -132,10 +133,12 @@ export function executeAST(ast: any): any {
                 }
 
                 if (!executed && peek.else) {
-                    executeAST(peek.else);
+                    result = executeAST(peek.else);
                 }
 
             }
+
+            if (result?.type === 'PARAR' || result?.type === 'SALTAR' || result?.type === 'DEVOLVER') return result;
 
         } else if (peek.type === 'VAR') {
             const value = executeAST(Array.isArray(peek.content)? peek.content : [ peek.content ]);
@@ -143,7 +146,11 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'MIENTRAS') {
             while (executeAST(peek.value).value === 'verdadero') {
-                executeAST(peek.children);
+                let block = executeAST(peek.children);
+
+                if (block?.type === 'PARAR') break;
+                if (block?.type === 'SALTAR') continue;
+                if (block?.type === 'DEVOLVER') return block;
             }
 
         } else if (peek.type === 'DEVOLVER') {
