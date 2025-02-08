@@ -29,7 +29,7 @@ export class Parser {
                         );
                     }else this.nodes.push(
                         {
-                            type: statement,
+                            type: statement.type,
                             value: 'EXPRESION',
                             children: [ this.consume(types) ]
                         }
