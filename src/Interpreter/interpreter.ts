@@ -244,7 +244,6 @@ export function executeAST(ast: any): any {
         } else if (functionsInstance[peek.type]) {
             const varsInstanceCopy = varsInstance;
             const func = functionsInstance[peek.type];
-            // console.log(peek.value)
 
             if(func.params.length > 0) {
                 for (let i = 0; i < func.params.length; i++) {

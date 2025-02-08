@@ -132,7 +132,7 @@ export class Parser {
                 case statements.FUNCION:
                     this.consume(statements.FUNCION);
                     const functionName: any = this.consume(this.peek().type);
-                    const params: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                    const params: any = (this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION)).filter(block => block.type != 'SEPARADOR');
                     const funcBody: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
 
                     this.functions.push(functionName);
@@ -177,13 +177,30 @@ export class Parser {
                     break;
 
                 default:
+                    if (this.peek().type === statements.SEPARADOR) {
+                        /*
+                        Es posible que el parser intente interpretar el token ";" (o el separador) como si fuera el nombre de una función.
+                        
+                        Es decir, ejemplo: "saludar(<1 MAS 1>; <1 MAS 1>)"
+                        después del primer parámetro, se encuentra el token ";" y, según la próxima condición:
+
+                        Se cumple porque el token siguiente es un L_EXPRESSION (la expresión que sigue al separador).
+                        Así, el parser consume el ";" y lo trata como nombre de función, y como evidentemente ";" no está declarado,
+                        lanza el error "La función ; no ha sido declarada."
+
+                        La solución es comprobar si el token actual es un separador (es decir, el token ";") y, en ese caso, simplemente consumirlo e ignorarlo.
+                        */
+                        this.consume(statements.SEPARADOR);
+                        break;
+                    }
+
                     // Consumir funciones, en caso contrario simplemente se consume y se agrega el nodo.
                     if (this.peek().type && this.current + 1 < this.tokens.length && this.tokens[this.current + 1].type === statements.L_EXPRESSION) {
                         const functionName: any = this.consume(this.peek().type);
 
                         // Verificar que la función se declaró
                         if (!this.functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`);
-                        const params: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
+                        const params: any = (this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION)).filter(block => block.type != 'SEPARADOR');
 
                         this.nodes.push({
                             type: functionName.value,
