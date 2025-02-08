@@ -23,7 +23,8 @@ export const statements = {
     DEVOLVER: 'DEVOLVER',
     CADA: 'CADA',
     SEPARADOR: 'SEPARADOR',
-    FUNCION: 'FUNCION'
+    FUNCION: 'FUNCION',
+    VERCADA: 'VERCADA'
 }
 
 export const operators = {
@@ -45,4 +46,15 @@ export const comparation_operators = {
     IGUAL: "IGUAL",
     Y: "Y",
     O: "O"
+}
+
+export const array_operators = {
+    MODIFICAR: 'MODIFICAR',
+    POSICION: 'POSICION',
+    LONGITUD: 'LONGITUD',
+    EMPUJAR: 'EMPUJAR',
+    CORTAR_FINAL: 'CORTAR_FINAL',
+    CORTAR_PRINCIPIO: 'CORTAR_PRINCIPIO',
+    EMPUJAR_PRINCIPIO: 'EMPUJAR_PRINCIPIO',
+    CONCATENAR: 'CONCATENAR'
 }

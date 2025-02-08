@@ -1,5 +1,5 @@
 import { ASTNode, Token } from "src/Types/Token";
-import { comparation_operators, operators, statements, types } from "../Lexer/types"
+import { array_operators, comparation_operators, operators, statements, types } from "../Lexer/types"
 
 const functions: string[] = [];
 
@@ -92,6 +92,7 @@ export class Parser {
                             content: content
                         }
                     );
+
                     break;
                 case statements.MIENTRAS:
                 case statements.CADA:
@@ -107,6 +108,21 @@ export class Parser {
                         }
                     );
 
+                    break;
+                case statements.VERCADA:
+                    this.consume(statements.VERCADA);
+                    const value = this.consume(this.peek().type);
+                    this.consume(this.peek().type);
+                    const name = this.consume(this.peek().type);
+                    const eachblock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+
+                    this.nodes.push(
+                        {
+                            type: name.type,
+                            value: value.type,
+                            children: eachblock
+                        }
+                    );
                     break;
                 case statements.SEPARADOR:
                     this.consume(statements.SEPARADOR);
@@ -145,7 +161,16 @@ export class Parser {
                 case comparation_operators.NO:
                 case comparation_operators.O:
                 case comparation_operators.Y:
+                case array_operators.EMPUJAR:
+                case array_operators.EMPUJAR_PRINCIPIO:
+                case array_operators.CONCATENAR:
                     this.parseOperator(this.peek().type);
+                    break;
+
+                case array_operators.LONGITUD:
+                case array_operators.CORTAR_FINAL:
+                case array_operators.CORTAR_PRINCIPIO:
+                    this.parseLeftOperator(this.peek().type);
                     break;
 
                 case "NUMERO":
@@ -156,6 +181,23 @@ export class Parser {
                 case "NULO":
                 case "INDEFINIDO":
                     this.nodes.push(this.consume(this.peek().type));
+                    break;
+
+                case array_operators.MODIFICAR:
+                    this.consume(array_operators.MODIFICAR);
+                    const arrayToModify = this.consume(this.peek().type);
+                    this.consume(array_operators.POSICION);
+                    const position = this.consume(this.peek().type);
+                    this.consume(comparation_operators.IGUAL);
+                    const equal = this.consume(this.peek().type);
+                    const array: any = [ arrayToModify, position, equal ];
+
+                    this.nodes.push(
+                        {
+                            type: array_operators.MODIFICAR,
+                            value: array
+                        }
+                    );
                     break;
 
                 default:
@@ -216,7 +258,7 @@ export class Parser {
     
         while (this.current < this.tokens.length && depth > 0) {
             const token = this.tokens[this.current];
-            
+
             if (token.type === openType) depth++;
             if (token.type === closeType) depth--;
     
@@ -253,7 +295,7 @@ export class Parser {
 
         // this.curret--;
         const left = this.nodes[this.nodes.length - 1];
-        this.nodes.shift();
+        this.nodes.pop();
         this.consume(operator);
         let right;
 
@@ -265,6 +307,19 @@ export class Parser {
                 type: operator,
                 left: left,
                 right: right
+            }
+        );
+    }
+
+    private parseLeftOperator(operator: string) {
+        const left = this.nodes[this.nodes.length - 1];
+        this.nodes.pop();
+        this.consume(operator);
+
+        this.nodes.push(
+            {
+                type: operator,
+                left: left
             }
         );
     }

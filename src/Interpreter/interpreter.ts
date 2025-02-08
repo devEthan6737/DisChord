@@ -5,7 +5,7 @@ const functionsInstance: any = [];
 
 export function executeAST(ast: any): any {
     // console.log(ast);
-    // console.log(JSON.stringify(ast, null, 2));
+    // console.log(JSON.parse(JSON.stringify(ast, null, 2)));
 
     let current = 0;
     while (current < ast.length) {
@@ -14,7 +14,7 @@ export function executeAST(ast: any): any {
         if (peek.type === 'CONSOLA') {
             if (peek.value === 'EXPRESION') {
                 const _ast = executeAST(peek.children);
-                console.log(typeof _ast === 'object'? _ast.value : _ast);
+                console.log(typeof _ast === 'object'? Array.isArray(_ast)? _ast : _ast.value : _ast);
             } else console.log(peek.value);
 
         } else if (peek.type === 'TIPO') {
@@ -143,7 +143,7 @@ export function executeAST(ast: any): any {
 
         } else if (peek.type === 'VAR') {
             const value = executeAST(Array.isArray(peek.content)? peek.content : [ peek.content ]);
-            varsInstance[peek.value] = value.value;
+            varsInstance[peek.value] = value.value? value.value : value;
 
         } else if (peek.type === 'MIENTRAS') {
             while (executeAST(peek.value).value === 'verdadero') {
@@ -166,6 +166,20 @@ export function executeAST(ast: any): any {
 
                 varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
             }
+        
+        } else if (peek.type === 'VERCADA') {
+            console.log(peek)
+            const condition = peek.value[1];
+
+            while (executeAST([ condition ]).value === 'verdadero') {
+                const block = executeAST(peek.children);
+
+                if (block?.type === 'PARAR') break;
+                if (block?.type === 'SALTAR') continue;
+                if (block?.type === 'DEVOLVER') return block;
+
+                varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
+            }
 
         } else if (peek.type === 'DEVOLVER') {
             if (peek.value === 'EXPRESION') {
@@ -177,6 +191,37 @@ export function executeAST(ast: any): any {
             functionsInstance[peek.value] = {
                 params: peek.children[0],
                 body: peek.children[1]
+            }
+
+        } else if (peek.type === 'MODIFICAR') {
+            if (!isNaN(parseFloat(peek.value[2].value))) peek.value[2].value = parseFloat(peek.value[2].value);
+            if (peek.value[2].value === false) peek.value[2].value = 'falso';
+            if (peek.value[2].value === true) peek.value[2].value = 'verdadero';
+
+            varsInstance[peek.value[0].type][parseInt(peek.value[1].value) - 1] = peek.value[2].value;
+
+        } else if (peek.type === 'LONGITUD' || peek.type === 'EMPUJAR' || peek.type === 'CORTAR_FINAL' || peek.type === 'CORTAR_PRINCIPIO' || peek.type === 'EMPUJAR_PRINCIPIO' || peek.type === 'CONCATENAR') {
+            const left = executeAST(Array.isArray(peek.left)? peek.left : [ peek.left ]);
+            let right: any;
+            if(peek.right?.type) right = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
+
+            switch (peek.type) {
+                case 'LONGITUD':
+                    return left.length;
+                case 'EMPUJAR':
+                    left.push(right?.value);
+                    break;
+                case 'CORTAR_FINAL':
+                    left.pop();
+                    break;
+                case 'CORTAR_PRINCIPIO':
+                    left.shift();
+                    break;
+                case 'EMPUJAR_PRINCIPIO':
+                    left.unshift(right?.value);
+                    break;
+                case 'CONCATENAR':
+                    return left.concat(right);
             }
 
         } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {
@@ -238,8 +283,18 @@ export function executeAST(ast: any): any {
                 value: peek.value
             };
 
-        } else if (varsInstance[peek.type] || varsInstance[peek.type] == 0) {
-            return varsInstance[peek.type];
+        } else if (varsInstance.hasOwnProperty(peek.value || varsInstance[peek.value] === 0)) {
+            if (current + 1 < ast.length && ast[current + 1].type === 'LISTA') { // Verificar si el siguiente nodo es un acceso al array
+                const arrayValue = varsInstance[peek.type]; // Obtener el valor concreto
+                current++; // Consumir el nodo de la variable
+                const indexNode = ast[current]; // Obtener el índice
+                current++; // Avanzar para que no se procese de nuevo
+
+                // Supongamos que indexNode.value es algo como "[0]"
+                // Eliminar los corchetes y convertimos a número
+                const index = parseInt(indexNode.value.replace(/\[|\]/g, ''), 10);
+                return arrayValue[index]; // Devolver el elemento en la posición indicada
+            } else return varsInstance[peek.type];
 
         } else if (functionsInstance[peek.type]) {
             const varsInstanceCopy = varsInstance;
