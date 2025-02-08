@@ -181,7 +181,8 @@ export class Parser {
                     if (this.peek().type && this.current + 1 < this.tokens.length && this.tokens[this.current + 1].type === statements.L_EXPRESSION) {
                         const functionName: any = this.consume(this.peek().type);
 
-                        if (!this.functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`); // Verificar que la función se declaró
+                        // Verificar que la función se declaró
+                        if (!this.functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`);
                         const params: any = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
 
                         this.nodes.push({

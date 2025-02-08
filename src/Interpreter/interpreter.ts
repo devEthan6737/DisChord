@@ -240,13 +240,16 @@ export function executeAST(ast: any): any {
 
         } else if (varsInstance[peek.type] || varsInstance[peek.type] == 0) {
             return varsInstance[peek.type];
-        
+
         } else if (functionsInstance[peek.type]) {
             const varsInstanceCopy = varsInstance;
             const func = functionsInstance[peek.type];
+            // console.log(peek.value)
 
             if(func.params.length > 0) {
                 for (let i = 0; i < func.params.length; i++) {
+                    peek.value[i] = executeAST(Array.isArray(peek.value[i]) ? peek.value[i] : [ peek.value[i] ]);
+
                     varsInstanceCopy[func.params[i].value] = peek.value[i].value;
                 }
             }
