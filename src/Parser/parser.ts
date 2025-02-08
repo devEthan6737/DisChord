@@ -1,9 +1,11 @@
 import { ASTNode, Token } from "src/Types/Token";
 import { comparation_operators, operators, statements, types } from "../Lexer/types"
 
+const functions: string[] = [];
+
 export class Parser {
     public nodes: ASTNode[] = [];
-    private functions: string[] = [];
+    // private functions: string[] = [];
 
     constructor(private tokens: Token[], private current: number = 0) {}
 
@@ -12,41 +14,22 @@ export class Parser {
         while (this.current < this.tokens.length) {
             switch (this.peek().type) {
                 case statements.CONSOLA:
-                    this.consume("CONSOLA");
-
-                    if(this.peek().type === 'L_EXPRESSION') {
-                        let expressionArray = this.blocks('L_EXPRESSION', 'R_EXPRESSION');
-                        this.nodes.push(
-                            {
-                                type: "CONSOLA",
-                                value: 'EXPRESION',
-                                children: expressionArray
-                            }
-                        );
-                    }else this.nodes.push(
-                        {
-                            type: "CONSOLA",
-                            value: 'EXPRESION',
-                            children: [ this.consume(types) ]
-                        }
-                    );
-
-                    break;
                 case statements.TIPO:
-                    this.consume("TIPO");
+                case statements.DEVOLVER:
+                    const statement: any = this.consume(this.peek().type);
 
-                    if(this.peek().type === 'L_EXPRESSION') {
-                        let expressionArray = this.blocks('L_EXPRESSION', 'R_EXPRESSION');
+                    if(this.peek().type === statements.L_EXPRESSION) {
+                        let expressionArray = this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION);
                         this.nodes.push(
                             {
-                                type: "TIPO",
+                                type: statement.type,
                                 value: 'EXPRESION',
                                 children: expressionArray
                             }
                         );
                     }else this.nodes.push(
                         {
-                            type: "TIPO",
+                            type: statement,
                             value: 'EXPRESION',
                             children: [ this.consume(types) ]
                         }
@@ -135,7 +118,7 @@ export class Parser {
                     const params: any = (this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION)).filter(block => block.type != 'SEPARADOR');
                     const funcBody: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
 
-                    this.functions.push(functionName);
+                    functions.push(functionName);
 
                     this.nodes.push(
                         {
@@ -165,7 +148,6 @@ export class Parser {
                     this.parseOperator(this.peek().type);
                     break;
 
-                case statements.DEVOLVER:
                 case "NUMERO":
                 case "BIGINT":
                 case "BOOL":
@@ -199,7 +181,7 @@ export class Parser {
                         const functionName: any = this.consume(this.peek().type);
 
                         // Verificar que la función se declaró
-                        if (!this.functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`);
+                        if (!functions.some((fn: any) => fn.value === functionName.value)) throw new Error(`La función ${functionName.value} no ha sido declarada.`);
                         const params: any = (this.blocks(statements.L_EXPRESSION, statements.R_EXPRESSION)).filter(block => block.type != 'SEPARADOR');
 
                         this.nodes.push({

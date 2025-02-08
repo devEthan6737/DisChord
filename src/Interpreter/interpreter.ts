@@ -159,7 +159,7 @@ export function executeAST(ast: any): any {
 
             while (executeAST([ condition ]).value === 'verdadero') {
                 const block = executeAST(peek.children);
-                
+
                 if (block?.type === 'PARAR') break;
                 if (block?.type === 'SALTAR') continue;
                 if (block?.type === 'DEVOLVER') return block;
@@ -253,7 +253,8 @@ export function executeAST(ast: any): any {
                 }
             }
 
-            executeAST(func.body);
+            const result: any = executeAST(func.body);
+            if (result) return result;
 
         } else if (peek.children) {
             executeAST(peek.children);
