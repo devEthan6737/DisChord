@@ -31,12 +31,12 @@ export function executeAST(ast: any): any {
             let value;
             let leftType = left.type;
 
-            if (left.value) left = left.value;
-            if (right.value) right = right.value;
+            if (left.value || left.value == 0) left = left.value;
+            if (right.value || right.value == 0) right = right.value;
             if (left === 'verdadero') left = true;
             else if (left === 'falso') left = false;
             if (right === 'verdadero') right = true;
-            if (right === 'falso') right = false; 
+            if (right === 'falso') right = false;
 
             switch (peek.type) {
                 case 'MAS':
@@ -164,7 +164,7 @@ export function executeAST(ast: any): any {
                 if (block?.type === 'SALTAR') continue;
                 if (block?.type === 'DEVOLVER') return block;
 
-                varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
+                varsInstance[peek.value[0].type] = executeAST(peek.value.slice(2));
             }
 
         } else if (peek.type === 'PORCADA') {
