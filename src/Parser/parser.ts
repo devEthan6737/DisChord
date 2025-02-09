@@ -109,8 +109,8 @@ export class Parser {
                     );
 
                     break;
-                case statements.VERCADA:
-                    this.consume(statements.VERCADA);
+                case statements.PORCADA:
+                    this.consume(statements.PORCADA);
                     const value = this.consume(this.peek().type);
                     this.consume(this.peek().type);
                     const name = this.consume(this.peek().type);
@@ -119,7 +119,7 @@ export class Parser {
 
                     this.nodes.push(
                         {
-                            type: statements.VERCADA,
+                            type: statements.PORCADA,
                             value: arr,
                             children: eachblock
                         }

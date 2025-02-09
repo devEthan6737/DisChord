@@ -21,7 +21,7 @@ export = [
     "CORTAR_PRINCIPIO",
     "EMPUJAR_PRINCIPIO",
     "CONCATENAR",
-    "VERCADA",
+    "PORCADA",
 
     "MAS",
     "MENOS",

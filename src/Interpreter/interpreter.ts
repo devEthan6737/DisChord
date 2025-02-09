@@ -167,7 +167,7 @@ export function executeAST(ast: any): any {
                 varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
             }
 
-        } else if (peek.type === 'VERCADA') {
+        } else if (peek.type === 'PORCADA') {
             const var1 = executeAST([ peek.value[0] ]);
             const varsInstanceCopy = varsInstance;
 

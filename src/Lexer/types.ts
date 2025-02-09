@@ -24,7 +24,7 @@ export const statements = {
     CADA: 'CADA',
     SEPARADOR: 'SEPARADOR',
     FUNCION: 'FUNCION',
-    VERCADA: 'VERCADA'
+    PORCADA: 'PORCADA'
 }
 
 export const operators = {
