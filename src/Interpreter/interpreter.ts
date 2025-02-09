@@ -1,5 +1,6 @@
 import { Lexer } from "../Lexer/lexer";
 import { parseArray } from "../Utils/arrays";
+import { interpolateString } from "../Utils/interpolateString";
 
 const varsInstance: any = {};
 const functionsInstance: any = [];
@@ -325,9 +326,15 @@ export function executeAST(ast: any): any {
             };
 
         } else if (peek.type === 'TEXTO') {
+            let text = peek.value;
+
+            if (text.includes('{') && text.includes('}')) {
+                text = interpolateString(text);
+            }
+
             return {
                 type: "TEXTO",
-                value: peek.value
+                value: text?.value? text?.value : text
             };
 
         } else if (peek.type === 'ESPACIO') {
@@ -359,6 +366,8 @@ export function executeAST(ast: any): any {
                 type: "INDEFINIDO",
                 value: peek.value
             };
+        
+        } else if (peek.type === 'L_BRACE') {
 
         } else if (varsInstance.hasOwnProperty(peek.value || varsInstance[peek.value] === 0)) {
             if (current + 1 < ast.length && ast[current + 1].type === 'LISTA') { // Verificar si el siguiente nodo es un acceso al array
