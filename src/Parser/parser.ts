@@ -114,12 +114,13 @@ export class Parser {
                     const value = this.consume(this.peek().type);
                     this.consume(this.peek().type);
                     const name = this.consume(this.peek().type);
-                    const eachblock = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                    const eachblock: any = this.blocks(statements.L_BRACE, statements.R_BRACE);
+                    const arr: any = [ name, value ];
 
                     this.nodes.push(
                         {
-                            type: name.type,
-                            value: value.type,
+                            type: statements.VERCADA,
+                            value: arr,
                             children: eachblock
                         }
                     );

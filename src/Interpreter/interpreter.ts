@@ -166,20 +166,18 @@ export function executeAST(ast: any): any {
 
                 varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
             }
-        
+
         } else if (peek.type === 'VERCADA') {
-            console.log(peek)
-            const condition = peek.value[1];
+            const var1 = executeAST([ peek.value[0] ]);
+            const varsInstanceCopy = varsInstance;
 
-            while (executeAST([ condition ]).value === 'verdadero') {
-                const block = executeAST(peek.children);
+            var1.forEach((v: any) => {
+                varsInstanceCopy[peek.value[1].type] = v;
+                
+                executeAST(peek.children);
 
-                if (block?.type === 'PARAR') break;
-                if (block?.type === 'SALTAR') continue;
-                if (block?.type === 'DEVOLVER') return block;
-
-                varsInstance[peek.value[0].type] = executeAST(peek.value.slice(4));
-            }
+                delete varsInstanceCopy[peek.value[1].type];
+            });
 
         } else if (peek.type === 'DEVOLVER') {
             if (peek.value === 'EXPRESION') {
