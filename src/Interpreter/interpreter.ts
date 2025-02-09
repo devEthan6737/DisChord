@@ -1,3 +1,4 @@
+import { Lexer } from "../Lexer/lexer";
 import { parseArray } from "../Utils/arrays";
 
 const varsInstance: any = {};
@@ -198,7 +199,7 @@ export function executeAST(ast: any): any {
 
             varsInstance[peek.value[0].type][parseInt(peek.value[1].value) - 1] = peek.value[2].value;
 
-        } else if (peek.type === 'LONGITUD' || peek.type === 'EMPUJAR' || peek.type === 'CORTAR_FINAL' || peek.type === 'CORTAR_PRINCIPIO' || peek.type === 'EMPUJAR_PRINCIPIO' || peek.type === 'CONCATENAR') {
+        } else if (peek.type === 'LONGITUD' || peek.type === 'EMPUJAR' || peek.type === 'CORTAR_FINAL' || peek.type === 'CORTAR_PRINCIPIO' || peek.type === 'EMPUJAR_PRINCIPIO' || peek.type === 'CONCATENAR' || peek.type === 'INDEXAR' || peek.type === 'INCLUYE' || peek.type === 'ALGUNO' || peek.type === 'TODOS' || peek.type === 'BUSCAR' || peek.type === 'BUSCAR_INDEX' || peek.type === 'FILTRAR' || peek.type === 'CLASIFICAR') {
             const left = executeAST(Array.isArray(peek.left)? peek.left : [ peek.left ]);
             let right: any;
             if(peek.right?.type) right = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
@@ -220,6 +221,84 @@ export function executeAST(ast: any): any {
                     break;
                 case 'CONCATENAR':
                     return left.concat(right);
+                case 'INDEXAR':
+                    return left.indexOf(right?.value);
+                case 'INCLUYE':
+                    return left.includes(right?.value)? 'verdadero' : 'falso';
+                case 'ALGUNO':
+                    const typeName = executeAST(peek.right[0].children);
+                    const result = left.some((value: any) => {
+                        const type = new Lexer(
+                            value === 'verdadero'     ? 'verdadero'  :
+                            value === 'falso'         ? 'falso'      :
+                            value === 'nulo'          ? 'nulo'       :
+                            value === 'indefinido'    ? 'indefinido' :
+                            typeof value === 'string' ? `"${value}"` :
+                            value.toString()).tokenize();
+                        return type[0].type === typeName.type
+                    });
+                    return result? 'verdadero' : 'falso';
+                case 'TODOS':
+                    const everyName = executeAST(peek.right[0].children);
+                    const everyResult = left.every((value: any) => {
+                        const type = new Lexer(
+                            value === 'verdadero'     ? 'verdadero'  :
+                            value === 'falso'         ? 'falso'      :
+                            value === 'nulo'          ? 'nulo'       :
+                            value === 'indefinido'    ? 'indefinido' :
+                            typeof value === 'string' ? `"${value}"` :
+                            value.toString()).tokenize();
+                        return type[0].type === everyName.type
+                    });
+                    return everyResult? 'verdadero' : 'falso';
+                case 'BUSCAR':
+                    const searchName = executeAST(peek.right[0].children);
+                    const searchResult = left.find((value: any) => {
+                        const type = new Lexer(
+                            value === 'verdadero'     ? 'verdadero'  :
+                            value === 'falso'         ? 'falso'      :
+                            value === 'nulo'          ? 'nulo'       :
+                            value === 'indefinido'    ? 'indefinido' :
+                            typeof value === 'string' ? `"${value}"` :
+                            value.toString()).tokenize();
+                        if(type[0].type === searchName.type) return value;
+                    });
+                    return searchResult;
+                case 'BUSCAR_INDEX':
+                    const indexName = executeAST(peek.right[0].children);
+                    const indexResult = left.find((value: any) => {
+                        const type = new Lexer(
+                            value === 'verdadero'     ? 'verdadero'  :
+                            value === 'falso'         ? 'falso'      :
+                            value === 'nulo'          ? 'nulo'       :
+                            value === 'indefinido'    ? 'indefinido' :
+                            typeof value === 'string' ? `"${value}"` :
+                            value.toString()).tokenize();
+                        if(type[0].type === indexName.type) return value;
+                    });
+                    return left.indexOf(indexResult);
+                case 'FILTRAR':
+                    const filtered = left.filter((value: any) => {
+                        const type = new Lexer(
+                            value === 'verdadero'     ? 'verdadero'  :
+                            value === 'falso'         ? 'falso'      :
+                            value === 'nulo'          ? 'nulo'       :
+                            value === 'indefinido'    ? 'indefinido' :
+                            typeof value === 'string' ? `"${value}"` :
+                            value.toString()
+                        ).tokenize();
+
+                        peek.right[0].left = type[0];
+                        const check = executeAST(Array.isArray(peek.right)? peek.right : [ peek.right ]);
+                        return check.value === 'verdadero'? value : false;
+                    });
+
+                    return filtered;
+                case 'CLASIFICAR':
+                    const var1 = varsInstance[peek.left.value];
+
+                    if (peek.right?.value === 'MENOR' || peek.right[0]?.value === 'MENOR') return var1.sort((a: any, b: any) => { return a - b });
+                    else if (peek.right?.value === 'MAYOR' || peek.right[0]?.value === 'MAYOR') return var1.sort((a: any, b: any) => { return b - a});
             }
 
         } else if (peek.type === 'PARAR' || peek.type === 'SALTAR') {

@@ -165,6 +165,14 @@ export class Parser {
                 case array_operators.EMPUJAR:
                 case array_operators.EMPUJAR_PRINCIPIO:
                 case array_operators.CONCATENAR:
+                case array_operators.INDEXAR:
+                case array_operators.INCLUYE:
+                case array_operators.ALGUNO:
+                case array_operators.TODOS:
+                case array_operators.BUSCAR:
+                case array_operators.BUSCAR_INDEX:
+                case array_operators.FILTRAR:
+                case array_operators.CLASIFICAR:
                     this.parseOperator(this.peek().type);
                     break;
 
