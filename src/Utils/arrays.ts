@@ -3,7 +3,8 @@ export function parseArray(arrayValue: string): any[] {
     let buffer = "";
     let depth = 0;
 
-    for (let i = 1; i < arrayValue.length - 1; i++) { // Evita corchetes exteriores
+    // Recorremos omitiendo los corchetes exteriores
+    for (let i = 1; i < arrayValue.length - 1; i++) {
         const char = arrayValue[i];
 
         if (char === "[" && depth >= 0) {
@@ -14,7 +15,7 @@ export function parseArray(arrayValue: string): any[] {
             depth--;
         } else if (char === "]" && depth === 1) {
             buffer += char;
-            items.push(parseArray(buffer));
+            items.push(parseArray(buffer.trim()));
             buffer = "";
             depth--;
         } else if (char === "," && depth === 0) {
@@ -27,8 +28,16 @@ export function parseArray(arrayValue: string): any[] {
         }
     }
 
-    if (buffer.trim()) {
-        items.push(processArrayValue(buffer.trim()));
+    if (buffer.trim() !== "") {
+        const item = buffer.trim();
+
+        if (item[0] === '[') {
+            // Se usa trim() para asegurar que el string empieza con '[' y termina con ']'
+            const itemProcess = item[item.length - 1] === ']' ? parseArray(item.trim()) : processArrayValue(item.slice(1).trim());
+            if (itemProcess !== '' || Array.isArray(itemProcess)) items.push(itemProcess);
+        } else {
+            items.push(processArrayValue(item));
+        }
     }
 
     return items;

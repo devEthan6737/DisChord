@@ -57,18 +57,42 @@ export class Lexer {
                 continue;
             }
 
-            if (char === "[") { // Arrays
-                let value = "[";
-                char = this.input[++current];
-                while (char !== "]" && current < this.input.length) {
+            // if (char === "[") { // Arrays
+            //     let value = "[";
+            //     char = this.input[++current];
+            //     while (char !== "]" && current < this.input.length) {
+            //         value += char;
+            //         char = this.input[++current];
+            //     }
+            //     value += ']';
+            //     current++;
+            //     tokens.push({ type: "LISTA", value });
+            //     continue;
+            // }
+
+            if (char === "[") { // Arrays (incluyendo arrays anidados)
+                let value = "";
+                let depth = 0;
+                // Iniciamos la captura desde el corchete de apertura
+                while (current < this.input.length) {
+                    char = this.input[current];
+                    if (char === "[") {
+                        depth++;
+                    }
+                    if (char === "]") {
+                        depth--;
+                    }
                     value += char;
-                    char = this.input[++current];
+                    current++;
+                    if (depth === 0) break;
                 }
-                value += ']';
-                current++;
+                if (depth !== 0) {
+                    throw new Error("Array literal mal formado, corchetes sin cerrar.");
+                }
                 tokens.push({ type: "LISTA", value });
                 continue;
             }
+            
 
             if (/[0-9]/.test(char) || char === "0") { // Números y BigInt
                 let value = "";
