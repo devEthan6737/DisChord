@@ -29,7 +29,7 @@ export function parseArray(arrayValue: string): any[] {
     }
 
     if (buffer.trim() !== "") {
-        const item = buffer.trim()
+        const item = buffer.trim();
 
         if (item[0] === '[') {
             // Se usa trim() para asegurar que el string empieza con '[' y termina con ']'
